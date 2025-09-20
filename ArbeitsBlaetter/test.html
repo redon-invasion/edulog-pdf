@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Testformular für Elternfragebogen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #f07c00;
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 15px 0 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #f07c00;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 30px;
+    }
+
+    button:hover {
+      background-color: #d96b00;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Elternfragebogen ausfüllen</h1>
+
+  <form id="form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" placeholder="z.B. Max Mustermann" required>
+
+    <label for="birthdate">Geburtsdatum:</label>
+    <input type="text" id="birthdate" name="birthdate" placeholder="z.B. 01.01.2019" required>
+
+    <label for="dachsince">In D/A/CH seit:</label>
+    <input type="text" id="dachsince" name="dachsince" placeholder="z.B. 2021" required>
+
+    <label for="date">Datum:</label>
+    <input type="text" id="date" name="date" placeholder="z.B. 18.09.2025" required>
+
+    <label for="company">Firma / Institution:</label>
+    <input type="text" id="company" name="company" placeholder="z.B. LOGmedia GmbH" required>
+
+    <button type="submit">Formular generieren</button>
+  </form>
+
+  <script>
+    document.getElementById("form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const params = new URLSearchParams({
+        name: document.getElementById("name").value,
+        birthdate: document.getElementById("birthdate").value,
+        dachsince: document.getElementById("dachsince").value,
+        date: document.getElementById("date").value,
+        company: document.getElementById("company").value
+      });
+
+      // Redirect to index.html with parameters
+      window.location.href = `index.html?${params.toString()}`;
+    });
+  </script>
+
+</body>
+</html>

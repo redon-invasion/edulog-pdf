@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test Parameter Eingabe</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    max-width: 900px;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  form div {
+    margin-bottom: 12px;
+  }
+  label {
+    display: inline-block;
+    width: 220px;
+    font-weight: bold;
+    vertical-align: top;
+  }
+  input, select {
+    padding: 4px;
+    font-size: 14px;
+  }
+  input[type="color"] {
+    width: 50px;
+    padding: 0;
+    border: none;
+  }
+  button {
+    margin-top: 15px;
+    padding: 8px 14px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  fieldset {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    padding: 15px 20px;
+  }
+  fieldset legend {
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0 8px;
+    color: #333;
+  }
+  .editor-toolbar button {
+    margin-right: 5px;
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  .editor {
+    border: 1px solid #ccc;
+    min-height: 120px;
+    padding: 8px;
+    margin-top: 5px;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+  <h1>Test Eingabe für Index.html</h1>
+  <form id="paramForm">
+
+    <!-- HEADER SECTION -->
+    <fieldset>
+      <legend>🟦 Header / Basisdaten</legend>
+      <div><label>Name:</label><input type="text" name="name" value="Vorname Nachname"></div>
+      <div><label>Muttersprache:</label><input type="text" name="lang" value="Deutsch"></div>
+      <div><label>Geburtsdatum:</label><input type="date" name="birthdate" value="2019-09-01"></div>
+      <div><label>Alter:</label><input type="text" name="age" value="6;0"></div>
+      <div><label>In D/A/CH seit:</label><input type="date" name="since" value="2023-01-01"></div>
+      <div><label>Datum:</label><input type="date" name="date" value="2025-09-15"></div>
+      <div><label>Teacher:</label><input type="text" name="teacher" value="Max Mustermann"></div>
+    </fieldset>
+
+    <!-- GESAMTLEISTUNG -->
+    <fieldset>
+      <legend>🟧 Gesamtleistung</legend>
+      <div><label>Score:</label><input type="number" name="score" value="4"></div>
+      <div><label>Min:</label><input type="number" name="min" value="0"></div>
+      <div><label>Max:</label><input type="number" name="max" value="13"></div>
+
+      <div><label>Colors:</label>
+        <input type="color" name="colors" value="#ed1b06">
+        <input type="color" name="colors" value="#ff7801">
+        <input type="color" name="colors" value="#fcc709">
+        <input type="color" name="colors" value="#fff15e">
+        <input type="color" name="colors" value="#c1ef4a">
+        <input type="color" name="colors" value="#79e607">
+      </div>
+      <div><label>Ranges (comma-separated):</label>
+        <input type="text" name="ranges" value="0-3,4-5,6,7-8,9-10,11">
+      </div>
+    </fieldset>
+
+    <!-- GLOBAL SPLIT -->
+    <fieldset>
+      <legend>🟪 Globaler Split (grau/grün)</legend>
+      <div>
+        <label>Split (%):</label>
+        <input type="range" name="globalsplit" min="10" max="90" value="50"
+          oninput="document.getElementById('splitval').innerText=this.value">
+        <span id="splitval">50</span>%
+      </div>
+    </fieldset>
+
+    <!-- TEILBEREICH 1 -->
+    <fieldset>
+      <legend>🟩 Teilbereich 1</legend>
+      <div><label>Score 1:</label><input type="number" name="score1" value="5"></div>
+      <div><label>Min 1:</label><input type="number" name="min1" value="0"></div>
+      <div><label>Max 1:</label><input type="number" name="max1" value="13"></div>
+
+      <div><label>Colors 1:</label>
+        <input type="color" name="colors1" value="#ed1b06">
+        <input type="color" name="colors1" value="#ff7801">
+        <input type="color" name="colors1" value="#fcc709">
+        <input type="color" name="colors1" value="#fff15e">
+        <input type="color" name="colors1" value="#c1ef4a">
+        <input type="color" name="colors1" value="#79e607">
+      </div>
+      <div><label>Ranges 1 (comma-separated):</label>
+        <input type="text" name="ranges1" value="0-3,4-6,7-10,11-13">
+      </div>
+    </fieldset>
+
+    <!-- TEILBEREICH 2 -->
+    <fieldset>
+      <legend>🟩 Teilbereich 2</legend>
+      <div><label>Score 2:</label><input type="number" name="score2" value="7"></div>
+      <div><label>Min 2:</label><input type="number" name="min2" value="0"></div>
+      <div><label>Max 2:</label><input type="number" name="max2" value="13"></div>
+
+      <div><label>Colors 2:</label>
+        <input type="color" name="colors2" value="#ed1b06">
+        <input type="color" name="colors2" value="#ff7801">
+        <input type="color" name="colors2" value="#fcc709">
+        <input type="color" name="colors2" value="#fff15e">
+        <input type="color" name="colors2" value="#c1ef4a">
+        <input type="color" name="colors2" value="#79e607">
+      </div>
+      <div><label>Ranges 2 (comma-separated):</label>
+        <input type="text" name="ranges2" value="0-2,3-6,7-13">
+      </div>
+    </fieldset>
+
+    <!-- WÖRTER FARBWAHL -->
+    <fieldset>
+      <legend>🟢 Wörter Farbwahl</legend>
+      <div><label>linkes Ohr:</label>
+        <select name="word_linkesOhr"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>rechtes Bein:</label>
+        <select name="word_rechtesBein"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>vorne:</label>
+        <select name="word_vorne"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>rechter Arm:</label>
+        <select name="word_rechterArm"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <hr>
+      <div><label>auf:</label>
+        <select name="word_auf"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>neben:</label>
+        <select name="word_neben"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>hinter:</label>
+        <select name="word_hinter"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>vor:</label>
+        <select name="word_vor"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+      <div><label>unter:</label>
+        <select name="word_unter"><option value="lightgreen">Grün</option><option value="red">Rot</option></select>
+      </div>
+    </fieldset>
+
+    <!-- FOOTER SECTION -->
+    <fieldset>
+      <legend>🟨 Footer / Zusätze</legend>
+      <div>
+        <label>Beurteilung:</label><br>
+        <div class="editor-toolbar">
+          <button type="button" onclick="formatText('bold')"><b>B</b></button>
+          <button type="button" onclick="formatText('italic')"><i>I</i></button>
+          <button type="button" onclick="formatText('increaseFontSize')">A+</button>
+          <button type="button" onclick="formatText('decreaseFontSize')">A-</button>
+          <button type="button" onclick="formatText('foreColor','red')">Rot</button>
+          <button type="button" onclick="formatText('foreColor','blue')">Blau</button>
+          <button type="button" onclick="formatText('justifyLeft')">Links</button>
+          <button type="button" onclick="formatText('justifyCenter')">Zentriert</button>
+          <button type="button" onclick="formatText('justifyRight')">Rechts</button>
+        </div>
+        <div id="assessmentEditor" class="editor" contenteditable="true">
+          Die Differenzierungsleistung ist deutlich auffällig, was sich auf die schulischen Lernprozesse auswirken könnte.
+        </div>
+      </div>
+      <div><label>Label 1:</label><input type="text" name="label1" value="stark auffällig"></div>
+      <div><label>Label 2:</label><input type="text" name="label2" value="auffällig"></div>
+      <div><label>Label 3:</label><input type="text" name="label3" value="unauffällig"></div>
+      <div><label>Label 4:</label><input type="text" name="label4" value="besonders unauffällig"></div>
+    </fieldset>
+
+    <button type="submit">Anzeigen</button>
+  </form>
+
+  <script>
+    function formatText(command, value=null) {
+      if (command === "increaseFontSize" || command === "decreaseFontSize") {
+        document.execCommand("fontSize", false, 4);
+        let editor = document.getElementById("assessmentEditor");
+        let fonts = editor.querySelectorAll("font[size='4']");
+        fonts.forEach(f => {
+          f.removeAttribute("size");
+          let current = parseInt(f.style.fontSize || "16");
+          f.style.fontSize = (command === "increaseFontSize" ? current+2 : current-2) + "px";
+        });
+      } else {
+        document.execCommand(command, false, value);
+      }
+    }
+
+    document.getElementById("paramForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const params = new URLSearchParams();
+
+      // collect multiple color groups
+      function collectColors(name) {
+        const inputs = e.target.querySelectorAll(`input[name='${name}']`);
+        return Array.from(inputs).map(inp=>inp.value).join(",");
+      }
+      params.set("colors", collectColors("colors"));
+      params.set("colors1", collectColors("colors1"));
+      params.set("colors2", collectColors("colors2"));
+
+      // collect word colors into grouped params
+      const words1 = ["word_linkesOhr","word_rechtesBein","word_vorne","word_rechterArm"];
+      params.set("wordcolors1", words1.map(w => formData.get(w)).join(","));
+
+      const words2 = ["word_auf","word_neben","word_hinter","word_vor","word_unter"];
+      params.set("wordcolors2", words2.map(w => formData.get(w)).join(","));
+
+      // assessment editor HTML
+      const assessmentHtml = document.getElementById("assessmentEditor").innerHTML;
+      params.set("assessment", assessmentHtml);
+
+      for (const [key, value] of formData.entries()) {
+        if (!key.startsWith("colors") && !key.startsWith("word_")) {
+          params.set(key, value);
+        }
+      }
+
+      window.location.href = "raumlage.html?" + params.toString();
+    });
+  </script>
+</body>
+</html>

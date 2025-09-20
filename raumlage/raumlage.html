@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Raumlage</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+  }
+  .container {
+    width: 1000px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* --- Logo --- */
+  .logo { width: 200px; height: 50px; margin: 0 auto 20px auto; }
+  .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  /* --- Header --- */
+  header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    margin-bottom: 20px;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 2px; }
+  .header-left .bold { font-weight: bold; }
+  header h1 { text-align: center; color: #f08a00; margin: 0; text-decoration: underline; font-size: 20px; }
+  .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .header-right .bold { font-weight: bold; }
+
+  /* --- Statusbars (shared) --- */
+  .status-section { margin-top: 30px; }
+  .status-title { text-align: center; font-weight: bold; margin-bottom: 10px; }
+  .bar-labels { display: flex; justify-content: space-between; margin: 0 5px 2px 5px; font-size: 13px; }
+  .bar-wrapper { margin: 10px 0; position: relative; }
+  .bar-line { position: absolute; left: 0; right: 0; height: 1px; background: #000; opacity: 0.9; }
+  .bar-line.top { top: -6px; }
+  .bar-line.bottom { bottom: -6px; }
+  .bar-track { position: relative; height: 26px; border-radius: 6px; overflow: hidden; }
+  .knob {
+    position: absolute; top: -10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #fff; border: 3px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transform: translateX(-50%);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+  }
+  .combined-end-labels { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; }
+
+  .sub-bar { margin-top: 8px; position: relative; }
+  .sub-track {
+    position: relative;
+    height: 26px;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    background: linear-gradient(
+      90deg,
+      #f5f5f5 0%,
+      #f5f5f5 75%,
+      #d5f5d5 75%,
+      #d5f5d5 100%
+    );
+  }
+  .sub-gray,
+  .sub-green {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .sub-gray { left: 10px; }
+  .sub-green { right: 10px; }
+  .split-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 75%;
+    width: 0;
+    border-left: 2px dashed #333;
+    pointer-events: none;
+  }
+
+  /* --- Teilbereich bars: smaller --- */
+  .status-section.half { width: 70%; margin: 30px auto; }
+
+/* Make Teilbereich bars thinner */
+.status-section.half .bar-track,
+.status-section.half .sub-track {
+  height: 18px;   /* thinner than 26px */
+}
+
+.status-section.half .knob {
+  width: 28px;
+  height: 28px;
+  top: -7px;      /* adjust vertical alignment */
+  font-size: 12px;
+}
+
+
+  /* --- Word boxes --- */
+  .word-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .word-box {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    background: #eee;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* --- Beurteilung box (footer) --- */
+  .assessment {
+    max-width: 700px;
+    border: 3px solid #3f3fe0;
+    margin: 30px auto 60px;
+    padding: 18px;
+    color: #2d2dcd;
+    text-align: center;
+    border-radius: 4px;
+    background: #fff;
+    min-height: 120px;
+  }
+
+  /* --- Footer row --- */
+  .footer {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    font-size: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+  }
+  .footer div:first-child { text-align: left; }
+  .footer div:nth-child(2), .footer div:nth-child(3) { text-align: center; }
+  .footer div:last-child { text-align: right; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER SECTION -->
+  <section id="header-section">
+    <div class="logo"><img src="logo.png" alt="Logo"></div>
+    <header>
+      <div class="header-left">
+        <div id="userName" class="bold"></div>
+        <div><span class="bold">Muttersprache:</span> <span id="lang"></span></div>
+        <div>geb.: <span id="birthdate"></span> &nbsp; Alter: <span id="age"></span></div>
+        <div>in D/A/CH seit: <span id="since"></span></div>
+      </div>
+      <h1>Raumlage</h1>
+      <div class="header-right">
+        <div><span class="bold">Datum:</span> <span id="date"></span></div>
+        <div>Teacher: <span id="teacher"></span></div>
+      </div>
+    </header>
+
+    <!-- Gesamtleistung (big bar) -->
+    <div class="status-section" id="gesamtleistung">
+      <div class="status-title">GESAMTLEISTUNG</div>
+      <div class="bar-labels"><div></div><div></div><div></div><div></div></div>
+      <div class="bar-wrapper"><div class="bar-line top"></div><div class="bar-track"></div><div class="bar-line bottom"></div><div class="knob"></div></div>
+      <div class="sub-bar">
+        <div class="sub-track">
+          <div class="sub-gray"></div>
+          <div class="sub-green"></div>
+          <div class="split-line"></div>
+        </div>
+      </div>
+      <div class="combined-end-labels"><div></div><div></div></div>
+    </div>
+  </section>
+
+  <!-- CONTENT SECTION -->
+  <section id="content-section">
+
+    <!-- Teilbereich 1 -->
+    <div class="status-section half" id="teil1">
+      <div class="status-title">KÖRPERSCHEMA</div>
+      <div class="bar-labels"><div></div><div></div><div></div><div></div></div>
+      <div class="bar-wrapper"><div class="bar-line top"></div><div class="bar-track"></div><div class="bar-line bottom"></div><div class="knob"></div></div>
+      <div class="sub-bar">
+        <div class="sub-track">
+          <div class="sub-gray"></div>
+          <div class="sub-green"></div>
+          <div class="split-line"></div>
+        </div>
+      </div>
+      <div class="combined-end-labels"><div></div><div></div></div>
+      <div class="word-boxes" id="words1">
+        <div class="word-box">linkes Ohr</div>
+        <div class="word-box">rechtes Bein</div>
+        <div class="word-box">vorne</div>
+        <div class="word-box">rechter Arm</div>
+      </div>
+    </div>
+
+    <!-- Teilbereich 2 -->
+    <div class="status-section half" id="teil2">
+      <div class="status-title">LAGEBENENNUNG UND -ZUORDNUNG</div>
+      <div class="bar-labels"><div></div><div></div><div></div><div></div></div>
+      <div class="bar-wrapper"><div class="bar-line top"></div><div class="bar-track"></div><div class="bar-line bottom"></div><div class="knob"></div></div>
+      <div class="sub-bar">
+        <div class="sub-track">
+          <div class="sub-gray"></div>
+          <div class="sub-green"></div>
+          <div class="split-line"></div>
+        </div>
+      </div>
+      <div class="combined-end-labels"><div></div><div></div></div>
+      <div class="word-boxes" id="words2">
+        <div class="word-box">auf</div>
+        <div class="word-box">neben</div>
+        <div class="word-box">hinter</div>
+        <div class="word-box">vor</div>
+        <div class="word-box">unter</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER SECTION -->
+  <section id="footer-section">
+    <div class="assessment">
+      <div style="font-weight:800; margin-bottom:8px;">Beurteilung:</div>
+      <div id="assessmentText"></div>
+    </div>
+    <div class="footer">
+      <div id="footerName"></div>
+      <div id="footerGeb"></div>
+      <div id="footerDate"></div>
+      <div id="footerTeacher"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* --- Helper: parse ranges --- */
+function parseRanges(rangesStr) {
+  return rangesStr.split(",").map(r => {
+    if (r.includes("-")) {
+      const [start, end] = r.split("-").map(Number);
+      return { start, end };
+    } else {
+      const val = Number(r);
+      return { start: val, end: val };
+    }
+  });
+}
+
+/* --- Get parameters --- */
+const params = new URLSearchParams(window.location.search);
+const config = {
+  // general info
+  name: params.get("name") || "Vorname Nachname",
+  lang: params.get("lang") || "Deutsch",
+  birthdate: params.get("birthdate") || "01/09/2019",
+  age: params.get("age") || "6;0",
+  since: params.get("since") || "01/01/2023",
+  date: params.get("date") || "15.09.2025",
+  teacher: params.get("teacher") || "Max Mustermann",
+  assessment: params.get("assessment") || "Die Differenzierungsleistung ist deutlich auffällig.",
+
+  // gesamtleistung
+  score: Number(params.get("score") || 0),
+  min: Number(params.get("min") ?? 0),
+  max: Number(params.get("max") ?? 13),
+  ranges: params.get("ranges") ? parseRanges(params.get("ranges")) : [{start:0,end:3},{start:4,end:5},{start:6,end:6},{start:7,end:8},{start:9,end:10},{start:11,end:11}],
+  colors: params.get("colors") ? params.get("colors").split(",") : ["#ed1b06","#ff7801","#fcc709","#fff15e","#c1ef4a","#79e607"],
+
+  // teilbereich 1
+  score1: Number(params.get("score1") || 0),
+  min1: Number(params.get("min1") ?? 0),
+  max1: Number(params.get("max1") ?? 13),
+  ranges1: params.get("ranges1") ? parseRanges(params.get("ranges1")) : [{start:0,end:3},{start:4,end:6},{start:7,end:10},{start:11,end:13}],
+  colors1: params.get("colors1") ? params.get("colors1").split(",") : ["#ed1b06","#fcc709","#c1ef4a","#79e607"],
+  wordcolors1: params.get("wordcolors1") ? params.get("wordcolors1").split(",") : ["#f8d7da","#f5c6cb","#d4edda","#c3e6cb"],
+
+  // teilbereich 2
+  score2: Number(params.get("score2") || 0),
+  min2: Number(params.get("min2") ?? 0),
+  max2: Number(params.get("max2") ?? 13),
+  ranges2: params.get("ranges2") ? parseRanges(params.get("ranges2")) : [{start:0,end:2},{start:3,end:6},{start:7,end:13}],
+  colors2: params.get("colors2") ? params.get("colors2").split(",") : ["#ff7801","#fff15e","#79e607"],
+  wordcolors2: params.get("wordcolors2") ? params.get("wordcolors2").split(",") : ["#d4edda","#f8d7da","#f5c6cb","#ffeeba","#cce5ff"],
+
+  // labels
+  label1: params.get("label1") || "stark auffällig",
+  label2: params.get("label2") || "deutlich auffällig",
+  label3: params.get("label3") || "auffällig",
+  label4: params.get("label4") || "altersentsprechend",
+  subgray: params.get("subgray") || "Weiterführende Fachdiagnostik empfohlen",
+  subgreen: params.get("subgreen") || "Normbereich",
+  subsplit: Number(params.get("subsplit") || 75), // fixed to 75%
+  submin: Number(params.get("submin") || 0),
+  submax: Number(params.get("submax") || 13)
+};
+
+/* --- Gradient builder --- */
+function buildGradient(colors, ranges, min, max) {
+  if (max === min) return colors[0] || "#ddd";
+  let stops = [];
+  for (let i = 0; i < ranges.length; i++) {
+    const r = ranges[i], color = colors[i % colors.length];
+    const startPct = ((r.start - min) / (max - min)) * 100;
+    const endPct = ((r.end - min) / (max - min)) * 100;
+    stops.push(`${color} ${Math.max(0,startPct)}%`, `${color} ${Math.min(100,endPct)}%`);
+  }
+  return `linear-gradient(90deg, ${stops.join(",")})`;
+}
+
+/* --- Fill header/footer --- */
+document.getElementById("userName").textContent = config.name;
+document.getElementById("lang").textContent = config.lang;
+document.getElementById("birthdate").textContent = config.birthdate;
+document.getElementById("age").textContent = config.age;
+document.getElementById("since").textContent = config.since;
+document.getElementById("date").textContent = config.date;
+document.getElementById("teacher").textContent = config.teacher;
+document.getElementById("assessmentText").innerHTML = config.assessment;
+document.getElementById("footerName").textContent = config.name;
+document.getElementById("footerGeb").textContent = "geb.: " + config.birthdate;
+document.getElementById("footerDate").textContent = config.date;
+document.getElementById("footerTeacher").textContent = config.teacher;
+
+/* --- Apply bar configs (reuse code) --- */
+function setupBar(sectionId, score, min, max, ranges, colors) {
+  const section = document.getElementById(sectionId);
+  const barTrack = section.querySelector(".bar-track");
+  const knob = section.querySelector(".knob");
+
+  // background gradient
+  barTrack.style.background = buildGradient(colors, ranges, min, max);
+
+  // knob
+  let pct = 0;
+  if (max !== min) pct = ((score - min) / (max - min)) * 100;
+  pct = Math.max(0, Math.min(100, pct));
+  knob.style.left = pct + "%";
+  knob.textContent = score;
+
+  // labels
+  const labels = section.querySelectorAll(".bar-labels div");
+  labels[0].textContent = config.label1;
+  labels[1].textContent = config.label2;
+  labels[2].textContent = config.label3;
+  labels[3].textContent = config.label4;
+  section.querySelector(".sub-gray").textContent = config.subgray;
+  section.querySelector(".sub-green").textContent = config.subgreen;
+  section.querySelector(".combined-end-labels div:first-child").textContent = Math.min(min, config.submin);
+  section.querySelector(".combined-end-labels div:last-child").textContent = Math.max(max, config.submax);
+
+  // fix split line at 75%
+  section.querySelector(".split-line").style.left = "75%";
+}
+
+// setup bars
+setupBar("gesamtleistung", config.score, config.min, config.max, config.ranges, config.colors);
+setupBar("teil1", config.score1, config.min1, config.max1, config.ranges1, config.colors1);
+setupBar("teil2", config.score2, config.min2, config.max2, config.ranges2, config.colors2);
+
+// apply word colors
+function applyWordColors(id, colors) {
+  const boxes = document.querySelectorAll(`#${id} .word-box`);
+  boxes.forEach((box, i) => {
+    if (colors[i]) box.style.background = colors[i];
+  });
+}
+applyWordColors("teil1", config.wordcolors1);
+applyWordColors("teil2", config.wordcolors2);
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Controls</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: 280px;
+    }
+    input {
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background: black;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Test Controls</h2>
+  <form id="form" class="controls">
+    <!-- 10 fields for dynamic dots -->
+    <input type="text" name="dot1" placeholder="dot1 (e.g. Punkt 1-1)">
+    <input type="text" name="dot2" placeholder="dot2 (e.g. Punkt 1-2)">
+    <input type="text" name="dot3" placeholder="dot3 (e.g. Punkt 2-1)">
+    <input type="text" name="dot4" placeholder="dot4">
+    <input type="text" name="dot5" placeholder="dot5">
+    <input type="text" name="dot6" placeholder="dot6">
+    <input type="text" name="dot7" placeholder="dot7">
+    <input type="text" name="dot8" placeholder="dot8">
+    <input type="text" name="dot9" placeholder="dot9">
+    <input type="text" name="dot10" placeholder="dot10">
+
+    <!-- Extra field for turning a dot black -->
+    <input type="text" name="blackDot" placeholder="Black dot (e.g. Punkt 1-1)">
+
+    <button type="submit">Open Board</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const params = new URLSearchParams(new FormData(form)).toString();
+      window.location.href = `rightBoard.html?${params}`;
+    });
+  </script>
+</body>
+</html>

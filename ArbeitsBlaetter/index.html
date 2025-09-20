@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Page View (with consent form)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #eee;
+    }
+
+    .page {
+      width: 297mm;   /* A4 landscape */
+      height: 210mm;
+      background: white;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      margin: 0 auto 10mm auto;
+      padding: 20mm;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 20px;
+      color: #f07c00;
+      margin: 10px 0 4px;
+      font-weight: bold;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .subtitle { font-size: 14px; margin-top: 4px; }
+    .bold { font-weight: bold; }
+    .logo { max-height: 40px; display: block; margin: 0 auto 8px; }
+
+    .header-landscape {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-top: 50px;
+    }
+    .header-landscape .left,
+    .header-landscape .right {
+      font-size: 14px;
+      line-height: 1.4;
+      width: 25%;
+    }
+    .header-landscape .right { text-align: right; }
+    .header-landscape .center { text-align: center; flex: 1; }
+
+    .content { margin-top: 40px; text-align: center; }
+    .content img {
+      max-width: 90%;
+      max-height: 120mm;
+      object-fit: contain;
+    }
+
+    .page.rotated {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rotated-content {
+      transform: rotate(90deg);
+      transform-origin: center center;
+      width: 210mm;
+      height: 297mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 20mm;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .header-rotated {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-top: 20px;
+    }
+    .header-rotated .left,
+    .header-rotated .right {
+      font-size: 14px;
+      line-height: 1.4;
+      width: 25%;
+    }
+    .header-rotated .right { text-align: right; }
+    .header-rotated .center { text-align: center; flex: 1; }
+
+    .consent-text {
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: justify;
+      color: #000;
+    }
+    .consent-text h2 {
+      font-size: 13px;
+      margin: 0 0 8px 0;
+      font-weight: bold;
+      text-align: left;
+    }
+    .consent-text p { margin: 8px 0; }
+    .consent-text ul { margin: 6px 0 10px 18px; }
+    .consent-text strong { font-weight: bold; }
+
+    .placeholder {
+      width: 40%;
+      border-bottom: 1px dotted #000;
+      margin: 8px 0 4px;
+      padding-bottom: 6px;
+    }
+
+    .signature-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto 1fr 24mm 1fr auto;
+      column-gap: 28px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .sig-label { grid-row: 1; font-size: 12px; color: #000; }
+    .sig-label.right { text-align: right; }
+
+    .sig-place { grid-row: 2; font-size: 12px; margin-top: 6px; }
+    .sig-place.right { text-align: right; }
+
+    .sig-line-top {
+      grid-row: 3;
+      border-top: 1px solid #000;
+      height: 0;
+      width: 100%;
+    }
+    .sig-line-bottom {
+      grid-row: 5;
+      border-top: 1px solid #000;
+      height: 0;
+      width: 100%;
+    }
+
+    .sig-footer {
+      grid-row: 6;
+      font-size: 12px;
+      color: #000;
+      text-align: center;
+    }
+    .sig-footer.right { text-align: center; }
+
+    @media print {
+      body { background: none; margin: 0; }
+      .page { box-shadow: none; margin: 0; page-break-after: always; }
+    }
+
+    /* Buttons */
+    .download-buttons {
+      text-align: center;
+      margin: 20px;
+    }
+    .download-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #f07c00;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .download-buttons button:hover { background: #d96b00; }
+  </style>
+</head>
+<body>
+
+ <!-- Page 1 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>ELTERNFRAGEBOGEN</h1>
+        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img1.png" alt="Seite 1"></div>
+  </div>
+
+  <!-- Page 2 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>ELTERNFRAGEBOGEN</h1>
+        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img2.png" alt="Seite 2"></div>
+  </div>
+
+  <!-- Page 3 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>ELTERNFRAGEBOGEN</h1>
+        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img3.png" alt="Seite 3"></div>
+  </div>
+
+  <!-- Page 4 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>VISUOMOTORIK</h1>
+        <div class="subtitle"></div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img4.png" alt="Seite 4"></div>
+  </div>
+
+  <!-- Page 5 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>VISUOMOTORIK</h1>
+        <div class="subtitle"></div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img5.png" alt="Seite 5"></div>
+  </div>
+
+  <!-- Page 6 -->
+  <div class="page">
+    <div class="header-landscape">
+      <div class="left">
+        <div class="bold">#NAME#</div>
+        <div>geb.: #BIRTHDATE#</div>
+        <div>In D/A/CH seit: #DAACH#</div>
+      </div>
+      <div class="center">
+        <img src="logo.png" alt="Logo" class="logo">
+        <h1>BEOBACHTUNG</h1>
+        <div class="subtitle"></div>
+      </div>
+      <div class="right">
+        <div class="bold">Datum: #DATE#</div>
+        <div>#COMPANY#</div>
+      </div>
+    </div>
+    <div class="content"><img src="img6.png" alt="Seite 6"></div>
+  </div>
+
+  <!-- Page 7 -->
+  <div class="page rotated">
+    <div class="rotated-content">
+      <div class="header-rotated">
+        <div class="left">
+          <div class="bold">#NAME#</div>
+          <div>geb.: #BIRTHDATE#</div>
+          <div>In D/A/CH seit: #DAACH#</div>
+        </div>
+        <div class="center">
+          <img src="logo.png" alt="Logo" class="logo">
+          <h1>NAMEN-SCHREIBEN / MENSCH-ZEICHNEN</h1>
+        </div>
+        <div class="right">
+          <div class="bold">Datum: #DATE#</div>
+          <div>#COMPANY#</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- Page 8 (Rotated consent form, matching the scan; smaller font + aligned signature grid) -->
+<div class="page rotated">
+  <div class="rotated-content">
+    <div class="consent-wrapper">
+      <div class="consent-text">
+        <h2>Ausfertigung für die Schule</h2>
+
+        <p>Einwilligungserklärung gemäß DSGVO und § 203 StGB in die Erhebung und Verarbeitung von Daten</p>
+
+        <p>Die Erklärung gilt für die von Ihnen gesetzlich vertretene Person <strong>#NAME#</strong>. 
+        #NAME# kann die Tragweite dieser Einwilligung noch nicht erkennen und daher keine eigene Erklärungen abgeben.</p>
+
+        <p>Hiermit willige ich</p>
+
+<br>
+
+        <div class="placeholder"></div>
+        <div style="margin-top:4px; margin-bottom:8px;">
+          (gesetzliche(r) Vertreter(in) von #NAME#)
+        </div>
+
+        <p>in die Erhebung, Speicherung und Verarbeitung von Daten durch</p>
+
+        <p><strong>#COMPANY#</strong></p>
+
+        <p>ein.</p>
+
+        <p>Diese Daten beinhalten folgende personenbezogenen Daten:</p>
+        <ul>
+          <li>Name</li>
+          <li>Vorname</li>
+          <li>Geburtsdatum (#BIRTHDATE#)</li>
+          <li>Adresse</li>
+          <li>Telefonnummer</li>
+          <li>E-Mail-Adresse</li>
+        </ul>
+
+        <p>und besondere Kategorien personenbezogener Daten im Sinne von Art. 9 DSGVO:</p>
+        <ul>
+          <li>Geburtsland</li>
+          <li>Familiensprache</li>
+          <li>in Deutschland/Österreich/Schweiz seit (#DACHSINCE#)</li>
+          <li>Gesundheitsdaten</li>
+        </ul>
+
+        <p>Die genannten Daten werden zum Zweck der Betrachtung und Auswertung von Sprach- und Bildungsständen erhoben 
+        und zudem auf den Computern und/oder Servern von #COMPANY# bzw. anderen Verwaltungsstellen gespeichert. 
+        Ich willige ein, dass #COMPANY# die personenbezogenen Daten, die Gesundheitsdaten und sonstigen nach Paragraph 203 StGB 
+        geschützten Daten der von mir gesetzlich vertretenen Personen im dafür erforderlichen Umfang mit beteiligten 
+        medizinischen und behördlichen Stellen teilt bzw. austauscht. 
+        Die Daten können nur von berechtigten Personen eingesehen und bearbeitet werden.</p>
+
+        <br>
+
+        <p>Der/die Unterzeichnende(n) hat/haben das Recht, diese Einwilligung jederzeit ohne Angabe einer Begründung mit Wirkung für die Zukunft zu widerrufen. 
+        Hierfür genügt eine schriftliche Nachricht an #COMPANY#. 
+        Die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Erhebung, Speicherung und Verarbeitung wird durch den Widerruf nicht berührt. 
+        Der/die Unterzeichnende(n) hat/haben das Recht, dieser Einwilligungserklärung nicht zuzustimmen. 
+        Da der hier angebotene Dienst jedoch auf die Erhebung und Verarbeitung der zu Anfang genannten Daten angewiesen ist, 
+        würde eine Nichtunterzeichnung eine Inanspruchnahme des Dienstes ausschließen.</p>
+
+        <br>
+
+        <p>Hiermit versichere/n ich/wir, der/die Unterzeichnende(n), 
+        der Erhebung und der Verarbeitung der Daten von #NAME# durch #COMPANY# 
+        zum Zweck der Erhebung von Sprach- und Bildungsständen <strong>freiwillig</strong> zuzustimmen 
+        und über die Datenverarbeitung und seine/ihre Rechte belehrt worden zu sein.</p>
+
+        <br>
+
+        <!-- Signature grid: two columns, rows aligned so top & bottom lines are level -->
+        <div class="signature-grid" aria-label="Signatures">
+          <!-- row 1: labels -->
+          <div class="sig-label">(gesetzliche(r) Vertreter(in)<br>von #NAME#)</div>
+          <div class="sig-label right">(2. gesetzliche(r) Vertreter(in) - falls notwendig)</div>
+
+          <br><br>
+
+          <!-- row 3: first (top) signature line -->
+          <div class="sig-line-top"></div>
+          <div class="sig-line-top right"></div>
+
+          <!-- row 5: second (bottom) signature line -->
+          <div class="sig-line-bottom"></div>
+          <div class="sig-line-bottom right"></div>
+
+          <!-- row 6: footer labels -->
+          <div class="sig-footer">Ort, Datum, Unterschrift</div>
+          <div class="sig-footer right">Ort, Datum, Unterschrift</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Page 9 (Rotated consent form, matching the scan; smaller font + aligned signature grid) -->
+<div class="page rotated">
+  <div class="rotated-content">
+    <div class="consent-wrapper">
+      <div class="consent-text">
+        <h2>Ausfertigung für die Schule</h2>
+
+        <p>Einwilligungserklärung gemäß DSGVO und § 203 StGB in die Erhebung und Verarbeitung von Daten</p>
+
+        <p>Die Erklärung gilt für die von Ihnen gesetzlich vertretene Person <strong>#NAME#</strong>. 
+        #NAME# kann die Tragweite dieser Einwilligung noch nicht erkennen und daher keine eigene Erklärungen abgeben.</p>
+
+        <p>Hiermit willige ich</p>
+
+<br>
+
+        <div class="placeholder"></div>
+        <div style="margin-top:4px; margin-bottom:8px;">
+          (gesetzliche(r) Vertreter(in) von #NAME#)
+        </div>
+
+        <p>in die Erhebung, Speicherung und Verarbeitung von Daten durch</p>
+
+        <p><strong>#COMPANY#</strong></p>
+
+        <p>ein.</p>
+
+        <p>Diese Daten beinhalten folgende personenbezogenen Daten:</p>
+        <ul>
+          <li>Name</li>
+          <li>Vorname</li>
+          <li>Geburtsdatum (#BIRTHDATE#)</li>
+          <li>Adresse</li>
+          <li>Telefonnummer</li>
+          <li>E-Mail-Adresse</li>
+        </ul>
+
+        <p>und besondere Kategorien personenbezogener Daten im Sinne von Art. 9 DSGVO:</p>
+        <ul>
+          <li>Geburtsland</li>
+          <li>Familiensprache</li>
+          <li>in Deutschland/Österreich/Schweiz seit (#DACHSINCE#)</li>
+          <li>Gesundheitsdaten</li>
+        </ul>
+
+        <p>Die genannten Daten werden zum Zweck der Betrachtung und Auswertung von Sprach- und Bildungsständen erhoben 
+        und zudem auf den Computern und/oder Servern von #COMPANY# bzw. anderen Verwaltungsstellen gespeichert. 
+        Ich willige ein, dass #COMPANY# die personenbezogenen Daten, die Gesundheitsdaten und sonstigen nach Paragraph 203 StGB 
+        geschützten Daten der von mir gesetzlich vertretenen Personen im dafür erforderlichen Umfang mit beteiligten 
+        medizinischen und behördlichen Stellen teilt bzw. austauscht. 
+        Die Daten können nur von berechtigten Personen eingesehen und bearbeitet werden.</p>
+
+        <br>
+
+        <p>Der/die Unterzeichnende(n) hat/haben das Recht, diese Einwilligung jederzeit ohne Angabe einer Begründung mit Wirkung für die Zukunft zu widerrufen. 
+        Hierfür genügt eine schriftliche Nachricht an #COMPANY#. 
+        Die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Erhebung, Speicherung und Verarbeitung wird durch den Widerruf nicht berührt. 
+        Der/die Unterzeichnende(n) hat/haben das Recht, dieser Einwilligungserklärung nicht zuzustimmen. 
+        Da der hier angebotene Dienst jedoch auf die Erhebung und Verarbeitung der zu Anfang genannten Daten angewiesen ist, 
+        würde eine Nichtunterzeichnung eine Inanspruchnahme des Dienstes ausschließen.</p>
+
+        <br>
+
+        <p>Hiermit versichere/n ich/wir, der/die Unterzeichnende(n), 
+        der Erhebung und der Verarbeitung der Daten von #NAME# durch #COMPANY# 
+        zum Zweck der Erhebung von Sprach- und Bildungsständen <strong>freiwillig</strong> zuzustimmen 
+        und über die Datenverarbeitung und seine/ihre Rechte belehrt worden zu sein.</p>
+
+        <br>
+
+        <!-- Signature grid: two columns, rows aligned so top & bottom lines are level -->
+        <div class="signature-grid" aria-label="Signatures">
+          <!-- row 1: labels -->
+          <div class="sig-label">(gesetzliche(r) Vertreter(in)<br>von #NAME#)</div>
+          <div class="sig-label right">(2. gesetzliche(r) Vertreter(in) - falls notwendig)</div>
+
+          <br><br>
+
+          <!-- row 3: first (top) signature line -->
+          <div class="sig-line-top"></div>
+          <div class="sig-line-top right"></div>
+
+          <!-- row 5: second (bottom) signature line -->
+          <div class="sig-line-bottom"></div>
+          <div class="sig-line-bottom right"></div>
+
+          <!-- row 6: footer labels -->
+          <div class="sig-footer">Ort, Datum, Unterschrift</div>
+          <div class="sig-footer right">Ort, Datum, Unterschrift</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Buttons -->
+  <div class="download-buttons">
+    <button id="download-merged">📄 Alle Seiten als EIN PDF</button>
+    <button id="download-separate">📂 Jede Seite einzeln</button>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Optional: you can still keep html2pdf.bundle.min.js if needed -->
+  <script src="html2pdf.bundle.min.js"></script>
+
+  <script>
+    // Replace placeholders with query params
+    const params = new URLSearchParams(window.location.search);
+    const replacements = {
+      "#NAME#": params.get("name") || "Test Database",
+      "#BIRTHDATE#": params.get("birthdate") || "01/09/2019",
+      "#DAACH#": params.get("dachsince") || "-",
+      "#DATE#": params.get("date") || new Date().toLocaleDateString("de-DE"),
+      "#COMPANY#": params.get("company") || "LOGmedia · Platzstraße 12 · 58730 Deutschland"
+    };
+    document.body.innerHTML = document.body.innerHTML.replace(
+      /#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#/g,
+      match => replacements[match]
+    );
+
+    const { jsPDF } = window.jspdf;
+
+    async function exportMerged() {
+      const pages = document.querySelectorAll('.page');
+      const pdf = new jsPDF({
+        unit: 'mm',
+        format: 'a4',
+        orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
+      });
+
+      for (let i = 0; i < pages.length; i++) {
+        const el = pages[i];
+        const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+
+        const canvas = await html2canvas(el, { scale: 2 });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        if (i > 0) pdf.addPage('a4', orientation);
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+      }
+
+      pdf.save('all-pages.pdf');
+    }
+
+    async function exportSeparate() {
+      const pages = document.querySelectorAll('.page');
+
+      for (let i = 0; i < pages.length; i++) {
+        const el = pages[i];
+        const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+
+        const canvas = await html2canvas(el, { scale: 2 });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        const pdf = new jsPDF({
+          unit: 'mm',
+          format: 'a4',
+          orientation: orientation
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+        pdf.save(`page-${i+1}.pdf`);
+      }
+    }
+
+    document.getElementById('download-merged').addEventListener('click', exportMerged);
+    document.getElementById('download-separate').addEventListener('click', exportSeparate);
+  </script>
+</body>
+</html>

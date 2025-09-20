@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dot Board</title>
+  <link rel="stylesheet" href="board.css">
+</head>
+<body>
+  <h2>Dot Board</h2>
+  <div id="board">
+    <canvas id="lines" width="420" height="420"></canvas>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const ctx = document.getElementById('lines').getContext('2d');
+
+    // Dot positions
+    const dotPositions = {
+      "Punkt 1-1": [60, 60], "Punkt 1-2": [210, 60], "Punkt 1-3": [360, 60],
+      "Punkt 2-1": [135, 135], "Punkt 2-2": [285, 135],
+      "Punkt 3-1": [60, 210], "Punkt 3-2": [210, 210], "Punkt 3-3": [360, 210],
+      "Punkt 4-1": [135, 285], "Punkt 4-2": [285, 285],
+      "Punkt 5-1": [60, 360], "Punkt 5-2": [210, 360], "Punkt 5-3": [360, 360],
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const blackDot = params.get("blackDot");
+
+    // Place dots
+    for (const [name, [x, y]] of Object.entries(dotPositions)) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      dot.title = name;
+
+      // If parameter matches, make it black
+      if (blackDot && name === blackDot) {
+        dot.style.background = "black";
+      }
+
+      board.appendChild(dot);
+    }
+
+    // --- Draw static cloud blue line ---
+    const staticPath = ["Punkt 1-2", "Punkt 5-2", "Punkt 5-3", "Punkt 3-1"];
+    ctx.beginPath();
+    for (let i = 0; i < staticPath.length; i++) {
+      const [x, y] = dotPositions[staticPath[i]];
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.strokeStyle = "#87CEEB"; // cloud blue
+    ctx.lineWidth = 6;           // thickness
+    ctx.stroke();
+
+    // --- Dynamic black lines from URL params ---
+    let prev = null;
+    for (let i = 1; i <= 10; i++) {
+      const name = params.get(`dot${i}`);
+      if (name && dotPositions[name]) {
+        const [x, y] = dotPositions[name];
+        if (prev) {
+          ctx.beginPath();
+          ctx.moveTo(prev[0], prev[1]);
+          ctx.lineTo(x, y);
+          ctx.strokeStyle = "black";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        prev = [x, y];
+      }
+    }
+  </script>
+</body>
+</html>

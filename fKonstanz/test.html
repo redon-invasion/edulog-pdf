@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FormKonstanz Generator</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; display: flex; justify-content: center; }
+  form { max-width: 800px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  fieldset { border: 1px solid #ccc; padding: 12px; border-radius: 6px; }
+  legend { font-weight: bold; }
+  label { display: inline-block; min-width: 120px; font-weight: 500; }
+  input[type="text"], input[type="number"], input[type="date"], textarea { width: 300px; padding: 4px; }
+  .color-row input[type="color"] { margin-right: 6px; }
+  button { padding: 10px 18px; font-weight: bold; margin-top: 10px; }
+  #assessmentEditor { border: 1px solid #ccc; padding: 8px; min-height: 80px; background: #fff; }
+  .toolbar button { margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<form id="paramForm">
+  <fieldset>
+    <legend>Personendaten</legend>
+    <div><label>Name:</label><input type="text" name="name" value="Anna Musterfrau"></div>
+    <div><label>Datum:</label><input type="date" name="date" value="2025-09-17"></div>
+    <div><label>Geburtsdatum:</label><input type="text" name="birthdate" value="01/09/2019"></div>
+    <div><label>Alter:</label><input type="text" name="age" value="6;0"></div>
+    <div><label>Muttersprache:</label><input type="text" name="lang" value="Deutsch"></div>
+    <div><label>in D/A/CH seit:</label><input type="text" name="since" value="01/01/2023"></div>
+    <div><label>Lehrer:</label><input type="text" name="teacher" value="Max Mustermann"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Hauptbar</legend>
+    <div><label>Min:</label><input type="number" name="min" value="0"></div>
+    <div><label>Max:</label><input type="number" name="max" value="13"></div>
+    <div><label>Score:</label><input type="number" name="score" value="5"></div>
+
+    <div class="color-row">
+      <label>Colors:</label>
+      <input type="color" name="colors" value="#ed1b06">
+      <input type="color" name="colors" value="#ff7801">
+      <input type="color" name="colors" value="#fcc709">
+      <input type="color" name="colors" value="#fff15e">
+      <input type="color" name="colors" value="#c1ef4a">
+      <input type="color" name="colors" value="#79e607">
+    </div>
+
+    <div><label>Ranges (comma-separated):</label>
+      <input type="text" name="ranges" value="0-3,4-5,6,7-8,9-10,11">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Subbar</legend>
+    <div><label>Sub Min:</label><input type="number" name="submin" value="0"></div>
+    <div><label>Sub Max:</label><input type="number" name="submax" value="13"></div>
+    <div><label>Split %:</label><input type="number" name="subsplit" value="40"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Beschriftungen</legend>
+    <div><label>Label 1:</label><input type="text" name="label1" value="stark auffällig"></div>
+    <div><label>Label 2:</label><input type="text" name="label2" value="auffällig"></div>
+    <div><label>Label 3:</label><input type="text" name="label3" value="unauffällig"></div>
+    <div><label>Label 4:</label><input type="text" name="label4" value="besonders unauffällig"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Beurteilung</legend>
+    <div class="toolbar">
+      <button type="button" onclick="formatText('bold')">Bold</button>
+      <button type="button" onclick="formatText('italic')">Italic</button>
+      <button type="button" onclick="formatText('underline')">Underline</button>
+      <button type="button" onclick="formatText('increaseFontSize')">A+</button>
+      <button type="button" onclick="formatText('decreaseFontSize')">A-</button>
+    </div>
+    <div id="assessmentEditor" contenteditable="true">
+      Die Differenzierungsleistung ist deutlich auffällig.
+    </div>
+  </fieldset>
+
+  <button type="submit">Anzeigen</button>
+</form>
+
+<script>
+function formatText(command, value=null) {
+  if (command === "increaseFontSize" || command === "decreaseFontSize") {
+    document.execCommand("fontSize", false, 4);
+    let editor = document.getElementById("assessmentEditor");
+    let fonts = editor.querySelectorAll("font[size='4']");
+    fonts.forEach(f => {
+      f.removeAttribute("size");
+      let current = parseInt(f.style.fontSize || "16");
+      f.style.fontSize = (command === "increaseFontSize" ? current+2 : current-2) + "px";
+    });
+  } else {
+    document.execCommand(command, false, value);
+  }
+}
+
+document.getElementById("paramForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const params = new URLSearchParams();
+
+  // collect multiple colors
+  const colorInputs = e.target.querySelectorAll("input[name='colors']");
+  const colors = Array.from(colorInputs).map(inp=>inp.value).join(",");
+  params.set("colors", colors);
+
+  // assessment text
+  const assessmentHtml = document.getElementById("assessmentEditor").innerHTML;
+  params.set("assessment", assessmentHtml);
+
+  // add all other fields
+  for (const [key, value] of formData.entries()) {
+    if (key !== "colors") params.set(key, value);
+  }
+
+  // redirect
+  window.location.href = "formKonstanz.html?" + params.toString();
+});
+</script>
+
+</body>
+</html>
