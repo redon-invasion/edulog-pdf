@@ -5,8 +5,18 @@
 
 class EdulogApiService {
   constructor() {
-    this.authUrl = 'https://dev.bildung.software/api/v1/authenticate';
-    this.baseUrl = 'http://logmedia-edulog-api.test/api';
+    // Dynamically determine URLs based on current domain
+    const currentHost = window.location.hostname;
+    const isDev = currentHost.includes('dev-');
+    
+    if (isDev) {
+      this.authUrl = 'https://dev.bildung.software/api/v1/authenticate';
+      this.baseUrl = 'https://dev-edulog-api.bildung.software/api';
+    } else {
+      this.authUrl = 'https://login.bildung.software/api/v1/authenticate';
+      this.baseUrl = 'https://edulog-api.bildung.software/api';
+    }
+    
     this.apiKey = '190ecf3589ea350df3665156f2a43423';
     this.cache = new Map();
     this.authData = null; // Store authentication data
@@ -433,6 +443,18 @@ class EdulogApiService {
    */
   getAuthData() {
     return this.authData;
+  }
+
+  /**
+   * Get current environment info (for debugging)
+   */
+  getEnvironmentInfo() {
+    return {
+      hostname: window.location.hostname,
+      isDev: window.location.hostname.includes('dev-'),
+      authUrl: this.authUrl,
+      baseUrl: this.baseUrl
+    };
   }
 }
 

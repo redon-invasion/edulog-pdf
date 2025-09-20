@@ -3,6 +3,18 @@
 ## Overview
 This document explains the API integration for the ArbeitsBlaetter folder, which now includes authentication and loading screens.
 
+## Dynamic URL Configuration
+
+The API service automatically detects the environment based on the current domain:
+
+- **Development Environment**: If the current URL contains "dev-" in the subdomain (e.g., `dev-edulog.bildung.software`)
+  - Auth URL: `https://dev.bildung.software/api/v1/authenticate`
+  - Base URL: `https://dev-edulog-api.bildung.software/api`
+
+- **Production Environment**: If the current URL does not contain "dev-" (e.g., `edulog.bildung.software`)
+  - Auth URL: `https://login.bildung.software/api/v1/authenticate`
+  - Base URL: `https://edulog-api.bildung.software/api`
+
 ## Authentication Flow
 
 ### 1. Authentication API Call
@@ -26,7 +38,9 @@ The authentication response should contain:
 - `parameters` - Additional parameters
 
 ### 3. Data API Call
-- **Base URL**: `GET http://logmedia-edulog-api.test/api/view-all-data?p_id={p_id}`
+- **Base URL**: Dynamic based on current domain
+  - **Dev environment** (dev-* subdomain): `GET https://dev-edulog-api.bildung.software/api/view-all-data?p_id={p_id}`
+  - **Production environment**: `GET https://edulog-api.bildung.software/api/view-all-data?p_id={p_id}`
 - **Conditional Parameters**:
   - If `authData.einrichtung.id` exists: `&Einrichtung_id={einrichtung.id}`
   - If `authData.privat_kunde.id` exists: `&privat_kunde_id={privat_kunde.id}`
@@ -106,12 +120,20 @@ window.edulogApi.hideLoadingScreen();
    ```
 
 ### Example API URL Construction
+
+**Development Environment:**
 ```
-http://logmedia-edulog-api.test/api/view-all-data?p_id=1755665051169&Einrichtung_id=15
+https://dev-edulog-api.bildung.software/api/view-all-data?p_id=1755665051169&Einrichtung_id=15
 ```
+
+**Production Environment:**
+```
+https://edulog-api.bildung.software/api/view-all-data?p_id=1755665051169&Einrichtung_id=15
+```
+
 Or if privat_kunde exists:
 ```
-http://logmedia-edulog-api.test/api/view-all-data?p_id=1755665051169&privat_kunde_id=123
+https://[environment]-edulog-api.bildung.software/api/view-all-data?p_id=1755665051169&privat_kunde_id=123
 ```
 
 ## File Structure

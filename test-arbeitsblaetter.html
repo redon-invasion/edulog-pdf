@@ -56,6 +56,11 @@
     </div>
     
     <div class="test-section">
+        <h3>Environment Info</h3>
+        <div id="environment-info" class="placeholder-demo">Loading...</div>
+    </div>
+    
+    <div class="test-section">
         <h3>API URL Construction</h3>
         <div id="api-url" class="placeholder-demo">Loading...</div>
     </div>
@@ -112,6 +117,17 @@
                     apiStatusDiv.className = 'status info';
                 }
                 
+                // Display environment info
+                const envInfo = window.edulogApi.getEnvironmentInfo();
+                const envDiv = document.getElementById('environment-info');
+                envDiv.innerHTML = `
+                    <strong>Current Environment:</strong><br>
+                    Hostname: ${envInfo.hostname}<br>
+                    Is Dev: ${envInfo.isDev ? 'Yes' : 'No'}<br>
+                    Auth URL: ${envInfo.authUrl}<br>
+                    Base URL: ${envInfo.baseUrl}
+                `;
+                
                 // Fetch data specifically for ArbeitsBlaetter
                 const data = await window.arbeitsBlaetterApi.fetchData();
                 
@@ -119,7 +135,7 @@
                 const apiUrlDiv = document.getElementById('api-url');
                 if (hasApiParams) {
                     const authData = window.edulogApi.authData;
-                    let constructedUrl = `http://logmedia-edulog-api.test/api/view-all-data?p_id=${params.get('p_id')}`;
+                    let constructedUrl = `${envInfo.baseUrl}/view-all-data?p_id=${params.get('p_id')}`;
                     
                     if (authData && authData.einrichtung && authData.einrichtung.id) {
                         constructedUrl += `&Einrichtung_id=${authData.einrichtung.id}`;
