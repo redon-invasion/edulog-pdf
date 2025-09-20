@@ -529,75 +529,182 @@
   <!-- Optional: you can still keep html2pdf.bundle.min.js if needed -->
   <script src="html2pdf.bundle.min.js"></script>
 
-  <script>
-    // Replace placeholders with query params
-    const params = new URLSearchParams(window.location.search);
-    const replacements = {
-      "#NAME#": params.get("name") || "Test Database",
-      "#BIRTHDATE#": params.get("birthdate") || "01/09/2019",
-      "#DAACH#": params.get("dachsince") || "-",
-      "#DATE#": params.get("date") || new Date().toLocaleDateString("de-DE"),
-      "#COMPANY#": params.get("company") || "LOGmedia · Platzstraße 12 · 58730 Deutschland"
-    };
-    document.body.innerHTML = document.body.innerHTML.replace(
-      /#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#/g,
-      match => replacements[match]
-    );
+    <!-- API Service -->
+    <script src="../js/api-service.js"></script>
+    <!-- ArbeitsBlaetter-specific API functions -->
+    <script src="api-functions.js"></script>
+    
+    <script>
+      // Initialize page with API data
+      document.addEventListener('DOMContentLoaded', async function() {
+        try {
+          // Show loading screen
+          window.edulogApi.showLoadingScreen();
+          
+          // Fetch data from API specifically for ArbeitsBlaetter
+          const data = await window.arbeitsBlaetterApi.fetchData();
+
+        // Replace placeholders with real data
+        const replacements = {
+          "#NAME#": data.name || '',
+          "#BIRTHDATE#": data.birthdate || '',
+          "#DAACH#": data.since || '',
+          "#DATE#": data.date || '',
+          "#COMPANY#": data.company || '',
+          "#DACHSINCE#": data.since || ''
+        };
+
+        
+        // Replace placeholders in the document
+        document.body.innerHTML = document.body.innerHTML.replace(
+          /#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#|#DACHSINCE#/g,
+          match => replacements[match]
+        );
+        
+        // Debug: Log if any placeholders remain
+        const remainingPlaceholders = document.body.innerHTML.match(/#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#|#DACHSINCE#/g);
+        // if (remainingPlaceholders) {
+        //   console.warn('Remaining placeholders:', remainingPlaceholders);
+        // } else {
+        //   console.log('All placeholders replaced successfully');
+        // }
+        
+        // Hide loading screen
+        window.edulogApi.hideLoadingScreen();
+        
+      } catch (error) {
+        console.error('Failed to populate page data:', error);
+        
+        // Show error message to user
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #ff4444;
+          color: white;
+          padding: 15px;
+          border-radius: 5px;
+          z-index: 10000;
+          max-width: 300px;
+        `;
+        errorDiv.innerHTML = `
+          <strong>API Error:</strong><br>
+          ${error.message}<br>
+          <small>Check console for details</small>
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Auto-remove error after 10 seconds
+        setTimeout(() => {
+          if (errorDiv.parentNode) {
+            errorDiv.parentNode.removeChild(errorDiv);
+          }
+        }, 10000);
+        
+        // Hide loading screen even on error
+        window.edulogApi.hideLoadingScreen();
+      }
+
+      // Initialize PDF export buttons after DOM is loaded
+      initializePdfButtons();
+    });
+
+
+
+
+
 
     const { jsPDF } = window.jspdf;
 
     async function exportMerged() {
-      const pages = document.querySelectorAll('.page');
-      const pdf = new jsPDF({
-        unit: 'mm',
-        format: 'a4',
-        orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
-      });
-
-      for (let i = 0; i < pages.length; i++) {
-        const el = pages[i];
-        const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
-
-        const canvas = await html2canvas(el, { scale: 2 });
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-        if (i > 0) pdf.addPage('a4', orientation);
-
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-      }
-
-      pdf.save('all-pages.pdf');
-    }
-
-    async function exportSeparate() {
-      const pages = document.querySelectorAll('.page');
-
-      for (let i = 0; i < pages.length; i++) {
-        const el = pages[i];
-        const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
-
-        const canvas = await html2canvas(el, { scale: 2 });
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      try {
+        const pages = document.querySelectorAll('.page');
+        
+        if (pages.length === 0) {
+          alert('No pages found to export');
+          return;
+        }
 
         const pdf = new jsPDF({
           unit: 'mm',
           format: 'a4',
-          orientation: orientation
+          orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
         });
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
+        for (let i = 0; i < pages.length; i++) {
+          const el = pages[i];
+          const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
 
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-        pdf.save(`page-${i+1}.pdf`);
+          const canvas = await html2canvas(el, { scale: 2 });
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+          if (i > 0) pdf.addPage('a4', orientation);
+
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+        }
+
+        pdf.save('all-pages.pdf');
+      } catch (error) {
+        console.error('Error exporting merged PDF:', error);
+        alert('Error exporting PDF: ' + error.message);
       }
     }
 
-    document.getElementById('download-merged').addEventListener('click', exportMerged);
-    document.getElementById('download-separate').addEventListener('click', exportSeparate);
+    async function exportSeparate() {
+      try {
+        const pages = document.querySelectorAll('.page');
+        
+        if (pages.length === 0) {
+          alert('No pages found to export');
+          return;
+        }
+
+        for (let i = 0; i < pages.length; i++) {
+          const el = pages[i];
+          const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+
+          const canvas = await html2canvas(el, { scale: 2 });
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+          const pdf = new jsPDF({
+            unit: 'mm',
+            format: 'a4',
+            orientation: orientation
+          });
+
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+          pdf.save(`page-${i+1}.pdf`);
+        }
+        
+      } catch (error) {
+        console.error('Error exporting separate PDFs:', error);
+        alert('Error exporting PDFs: ' + error.message);
+      }
+    }
+
+    function initializePdfButtons() {
+      const downloadMergedBtn = document.getElementById('download-merged');
+      const downloadSeparateBtn = document.getElementById('download-separate');
+      
+      if (downloadMergedBtn) {
+        downloadMergedBtn.addEventListener('click', exportMerged);
+      } else {
+        console.error('Download merged button not found');
+      }
+      
+      if (downloadSeparateBtn) {
+        downloadSeparateBtn.addEventListener('click', exportSeparate);
+      } else {
+        console.error('Download separate button not found');
+      }
+    }
   </script>
 </body>
 </html>

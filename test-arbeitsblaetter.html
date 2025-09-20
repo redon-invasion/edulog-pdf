@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArbeitsBlaetter API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-section h3 { margin-top: 0; color: #f08a00; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 3px; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .url-examples { background: #e9ecef; padding: 10px; border-radius: 3px; }
+        .url-examples code { display: block; margin: 5px 0; }
+        .placeholder-demo { background: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>ArbeitsBlaetter API Integration Test</h1>
+    
+    <div class="test-section">
+        <h3>Current URL Parameters</h3>
+        <div id="url-params" class="placeholder-demo">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Authentication Status</h3>
+        <div id="auth-status" class="status info">Checking authentication...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>API Status</h3>
+        <div id="api-status" class="status info">Checking API availability...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Placeholder Replacement Demo</h3>
+        <div class="placeholder-demo">
+            <p><strong>Before API call:</strong></p>
+            <p>Name: #NAME#</p>
+            <p>Birthdate: #BIRTHDATE#</p>
+            <p>In D/A/CH seit: #DAACH#</p>
+            <p>Date: #DATE#</p>
+            <p>Company: #COMPANY#</p>
+        </div>
+        <div id="after-replacement" class="placeholder-demo">
+            <p><strong>After API call:</strong></p>
+            <p>Name: <span id="demo-name">#NAME#</span></p>
+            <p>Birthdate: <span id="demo-birthdate">#BIRTHDATE#</span></p>
+            <p>In D/A/CH seit: <span id="demo-since">#DAACH#</span></p>
+            <p>Date: <span id="demo-date">#DATE#</span></p>
+            <p>Company: <span id="demo-company">#COMPANY#</span></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>API URL Construction</h3>
+        <div id="api-url" class="placeholder-demo">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test URLs</h3>
+        <div class="url-examples">
+            <p><strong>Test with API parameters:</strong></p>
+            <code>?token=test123&p_id=1755665051169</code>
+            <p><strong>Test with fallback parameters:</strong></p>
+            <code>?name=John%20Doe&birthdate=15/03/2018&since=01/01/2020&company=Test%20School</code>
+            <p><strong>Test without parameters (uses defaults):</strong></p>
+            <code>(no parameters)</code>
+        </div>
+    </div>
+
+    <!-- API Service -->
+    <script src="js/api-service.js"></script>
+    <!-- ArbeitsBlaetter-specific API functions -->
+    <script src="ArbeitsBlaetter/api-functions.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Display current URL parameters
+            const params = new URLSearchParams(window.location.search);
+            const urlParamsDiv = document.getElementById('url-params');
+            if (params.toString()) {
+                let html = '<strong>URL Parameters:</strong><br>';
+                for (const [key, value] of params) {
+                    html += `${key}: ${value}<br>`;
+                }
+                urlParamsDiv.innerHTML = html;
+            } else {
+                urlParamsDiv.innerHTML = '<em>No URL parameters found - will use default data</em>';
+            }
+            
+            // Test API service
+            const authStatusDiv = document.getElementById('auth-status');
+            const apiStatusDiv = document.getElementById('api-status');
+            
+            try {
+                // Check if API parameters are available
+                const hasApiParams = window.edulogApi.hasApiParams();
+                
+                if (hasApiParams) {
+                    authStatusDiv.innerHTML = 'API parameters detected - attempting authentication...';
+                    authStatusDiv.className = 'status info';
+                    apiStatusDiv.innerHTML = 'Waiting for authentication...';
+                    apiStatusDiv.className = 'status info';
+                } else {
+                    authStatusDiv.innerHTML = 'No API parameters - using fallback data';
+                    authStatusDiv.className = 'status info';
+                    apiStatusDiv.innerHTML = 'Skipping API calls - using fallback data';
+                    apiStatusDiv.className = 'status info';
+                }
+                
+                // Fetch data specifically for ArbeitsBlaetter
+                const data = await window.arbeitsBlaetterApi.fetchData();
+                
+                // Display API URL construction
+                const apiUrlDiv = document.getElementById('api-url');
+                if (hasApiParams) {
+                    const authData = window.edulogApi.authData;
+                    let constructedUrl = `http://logmedia-edulog-api.test/api/view-all-data?p_id=${params.get('p_id')}`;
+                    
+                    if (authData && authData.einrichtung && authData.einrichtung.id) {
+                        constructedUrl += `&Einrichtung_id=${authData.einrichtung.id}`;
+                    }
+                    
+                    if (authData && authData.privat_kunde && authData.privat_kunde.id) {
+                        constructedUrl += `&privat_kunde_id=${authData.privat_kunde.id}`;
+                    }
+                    
+                    apiUrlDiv.innerHTML = `<strong>Constructed API URL:</strong><br><code>${constructedUrl}</code>`;
+                } else {
+                    apiUrlDiv.innerHTML = '<em>No API parameters - URL construction skipped</em>';
+                }
+                
+                // Display success
+                if (hasApiParams) {
+                    authStatusDiv.innerHTML = '✅ Authentication successful';
+                    authStatusDiv.className = 'status success';
+                    apiStatusDiv.innerHTML = '✅ API data fetched successfully';
+                    apiStatusDiv.className = 'status success';
+                } else {
+                    authStatusDiv.innerHTML = '✅ Using fallback data';
+                    authStatusDiv.className = 'status success';
+                    apiStatusDiv.innerHTML = '✅ Fallback data loaded successfully';
+                    apiStatusDiv.className = 'status success';
+                }
+                
+                // Update demo placeholders
+                document.getElementById('demo-name').textContent = data.name;
+                document.getElementById('demo-birthdate').textContent = data.birthdate;
+                document.getElementById('demo-since').textContent = data.since;
+                document.getElementById('demo-date').textContent = data.date;
+                document.getElementById('demo-company').textContent = data.company;
+                
+            } catch (error) {
+                // Display error
+                authStatusDiv.innerHTML = `❌ Authentication Error: ${error.message}`;
+                authStatusDiv.className = 'status error';
+                apiStatusDiv.innerHTML = `❌ API Error: ${error.message}`;
+                apiStatusDiv.className = 'status error';
+            }
+        });
+    </script>
+</body>
+</html>
