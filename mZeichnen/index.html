@@ -26,8 +26,8 @@
   .bar-labels { display: flex; justify-content: space-between; margin: 0 5px 2px 5px; font-size: 13px; }
   .bar-wrapper { margin: 20px 0; position: relative; }
   .bar-line { position: absolute; left: 0; right: 0; height: 1px; background: #000; opacity: 0.9; }
-  .bar-line.top { top: -6px; }
-  .bar-line.bottom { bottom: -6px; }
+  .bar-line.top { top: -3px; }
+  .bar-line.bottom { bottom: -3px; }
   .bar-track { position: relative; height: 26px; border-radius: 6px; overflow: hidden; }
   .knob { position: absolute; top: -10px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transform: translateX(-50%); display: flex; align-items: center; justify-content: center; font-weight: bold; }
   .combined-end-labels { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; }
@@ -135,7 +135,7 @@
 
       <div class="header-right">
         <div><span class="bold">Datum:</span> <span id="date"></span></div>
-        <div>Teacher: <span id="teacher"></span></div>
+        <div><span id="company"></span></div>
       </div>
     </header>
 
@@ -212,40 +212,156 @@
   </section>
 </div>
 
+<!-- Include API Service -->
+<script src="../js/api-service.js"></script>
+<!-- Include mZeichnen API Functions -->
+<script src="api-functions.js"></script>
+
 <script>
 /* --- Parse and config --- */
-function parseRanges(rangesStr) {
-  return rangesStr.split(",").map(r => {
-    if (r.includes("-")) {
-      const [start, end] = r.split("-").map(Number);
-      return { start, end };
-    } else {
-      const val = Number(r);
-      return { start: val, end: val };
-    }
-  });
+function parseRanges(rangesData) {
+  console.log('parseRanges v2 called with:', rangesData, 'type:', typeof rangesData);
+  
+  if (!rangesData || rangesData === 'UNKNOWN') return [];
+  
+  // If it's already an array of objects, return it
+  if (Array.isArray(rangesData)) {
+    console.log('Returning array as-is');
+    return rangesData;
+  }
+  
+  // If it's a string, parse it
+  if (typeof rangesData === 'string') {
+    console.log('Parsing string');
+    return rangesData.split(",").map(r => {
+      if (r.includes("-")) {
+        const [start, end] = r.split("-").map(Number);
+        return { start, end };
+      } else {
+        const val = Number(r);
+        return { start: val, end: val };
+      }
+    });
+  }
+  
+  console.log('Using fallback');
+  // Fallback
+  return [];
 }
-const params = new URLSearchParams(window.location.search);
-const config = {
-  name: params.get("name") || "Vorname Nachname",
-  lang: params.get("lang") || "Deutsch",
-  birthdate: params.get("birthdate") || "01/09/2019",
-  age: params.get("age") || "6;0",
-  since: params.get("since") || "01/01/2023",
-  date: params.get("date") || "15.09.2025",
-  teacher: params.get("teacher") || "Max Mustermann",
-  min: params.get("min") ? Number(params.get("min")) : 0,
-  max: params.get("max") ? Number(params.get("max")) : 13,
-  score: params.get("score") ? Number(params.get("score")) : 0,
-  colors: params.get("colors") ? params.get("colors").split(",") : ["#ed1b06","#ff7801","#fcc709","#fff15e","#c1ef4a","#79e607"],
-  ranges: params.get("ranges") ? parseRanges(params.get("ranges")) : [{start:0,end:3},{start:4,end:5},{start:6,end:6},{start:7,end:8},{start:9,end:10},{start:11,end:11}],
-  assessment: params.get("assessment") || "Die Differenzierungsleistung ist deutlich auffällig.",
-  label1: params.get("label1") || "stark auffällig",
-  label2: params.get("label2") || "auffällig",
-  label3: params.get("label3") || "unauffällig",
-  label4: params.get("label4") || "besonders unauffällig"
-};
-/* --- Build gradient from ranges --- */
+
+// Global config variable - will be populated by API
+let config = {};
+
+// Initialize the page
+async function initializePage() {
+  try {
+    // Show loading screen
+    if (window.edulogApi) {
+      window.edulogApi.showLoadingScreen();
+    }
+    
+    // Fetch data from API
+    if (window.mZeichnenApi) {
+      const apiData = await window.mZeichnenApi.fetchData();
+      
+      // Build config from API data
+      config = {
+        name: apiData.name || '',
+        lang: apiData.lang || '', 
+        birthdate: apiData.birthdate || '',
+        age: apiData.age || '',
+        since: apiData.since || '',
+        date: apiData.date || new Date().toLocaleDateString('de-DE'),
+        company: apiData.company || '',
+        min: (apiData.min !== 'UNKNOWN' && apiData.min !== undefined) ? Number(apiData.min) : 0,
+        max: (apiData.max !== 'UNKNOWN' && apiData.max !== undefined) ? Number(apiData.max) : 13,
+        score: (apiData.score !== 'UNKNOWN' && apiData.score !== undefined) ? Number(apiData.score) : 0,
+        colors: (apiData.colors !== 'UNKNOWN' && apiData.colors) ? 
+          (Array.isArray(apiData.colors) ? apiData.colors : apiData.colors.split(",")) : 
+          [],
+        ranges: parseRanges(apiData.ranges),
+        assessment: (apiData.assessment !== 'UNKNOWN' && apiData.assessment) || "",
+        label1: (apiData.label1 !== 'UNKNOWN' && apiData.label1) || "",
+        label2: (apiData.label2 !== 'UNKNOWN' && apiData.label2) || "",
+        label3: (apiData.label3 !== 'UNKNOWN' && apiData.label3) || "",
+        label4: (apiData.label4 !== 'UNKNOWN' && apiData.label4) || ""
+      };
+    } else {
+      // Fallback to empty data if API is not available
+      config = {
+        name: '',
+        lang: '', 
+        birthdate: '',
+        age: '',
+        since: '',
+        date: new Date().toLocaleDateString('de-DE'),
+        company: '',
+        min: 0,
+        max: 13,
+        score: 0,
+        colors: [],
+        ranges: [],
+        assessment: '',
+        label1: '',
+        label2: '',
+        label3: '',
+        label4: ''
+      };
+    }
+    
+    // Populate the page with data
+    populatePage();
+    
+    // Hide loading screen
+    if (window.edulogApi) {
+      window.edulogApi.hideLoadingScreen();
+    }
+    
+  } catch (error) {
+    console.error('Error initializing page:', error);
+    
+    // Hide loading screen even on error
+    if (window.edulogApi) {
+      window.edulogApi.hideLoadingScreen();
+    }
+    
+    // Show error message or fallback
+    alert('Fehler beim Laden der Daten. Bitte versuchen Sie es erneut.');
+  }
+}
+
+/* --- Fill static content --- */
+function populatePage() {
+  document.getElementById("userName").textContent = config.name;
+  document.getElementById("lang").textContent = config.lang;
+  document.getElementById("birthdate").textContent = config.birthdate;
+  document.getElementById("age").textContent = config.age;
+  document.getElementById("since").textContent = config.since;
+  document.getElementById("date").textContent = config.date;
+  document.getElementById("company").textContent = config.company;
+  document.getElementById("assessmentText").innerHTML = config.assessment;
+  document.getElementById("label1").textContent = config.label1;
+  document.getElementById("label2").textContent = config.label2;
+  document.getElementById("label3").textContent = config.label3;
+  document.getElementById("label4").textContent = config.label4;
+
+  /* --- Footer --- */
+  document.getElementById("footerName").textContent = config.name;
+  document.getElementById("footerGeb").textContent = "geb.: " + config.birthdate;
+  document.getElementById("footerDate").textContent = config.date;
+  document.getElementById("footerTeacher").textContent = config.company;
+
+  /* --- Gradient Bar --- */
+  document.getElementById("barTrack").style.background = buildGradient(config.colors, config.ranges, config.min, config.max);
+  let pct = config.max !== config.min ? ((config.score - config.min) / (config.max - config.min)) * 100 : 0;
+  pct = Math.max(0, Math.min(100, pct));
+  document.getElementById("knob").style.left = pct + "%";
+  document.getElementById("knob").textContent = config.score;
+  document.getElementById("combinedMin").textContent = Math.min(config.min, 0);
+  document.getElementById("combinedMax").textContent = Math.max(config.max, 13);
+}
+
+/* --- Gradient Bar Helper Function --- */
 function buildGradient(colors, ranges, min, max) {
   if (max === min) return colors[0] || "#ddd";
   let stops = [];
@@ -254,43 +370,13 @@ function buildGradient(colors, ranges, min, max) {
     const color = colors[i % colors.length];
     const startPct = ((r.start - min) / (max - min)) * 100;
     const endPct = ((r.end - min) / (max - min)) * 100;
-    const s = Math.max(0, Math.min(100, startPct));
-    const e = Math.max(0, Math.min(100, endPct));
-    stops.push(`${color} ${s}%`, `${color} ${e}%`);
+    stops.push(`${color} ${startPct}%`, `${color} ${endPct}%`);
   }
   return `linear-gradient(90deg, ${stops.join(",")})`;
 }
-/* --- Fill static content --- */
-document.getElementById("userName").textContent = config.name;
-document.getElementById("lang").textContent = config.lang;
-document.getElementById("birthdate").textContent = config.birthdate;
-document.getElementById("age").textContent = config.age;
-document.getElementById("since").textContent = config.since;
-document.getElementById("date").textContent = config.date;
-document.getElementById("teacher").textContent = config.teacher;
-document.getElementById("assessmentText").innerHTML = config.assessment;
-document.getElementById("label1").textContent = config.label1;
-document.getElementById("label2").textContent = config.label2;
-document.getElementById("label3").textContent = config.label3;
-document.getElementById("label4").textContent = config.label4;
-/* --- Footer --- */
-document.getElementById("footerName").textContent = config.name;
-document.getElementById("footerGeb").textContent = "geb.: " + config.birthdate;
-document.getElementById("footerDate").textContent = config.date;
-document.getElementById("footerTeacher").textContent = config.teacher;
-/* --- Bar gradient --- */
-document.getElementById("barTrack").style.background = buildGradient(config.colors, config.ranges, config.min, config.max);
-/* --- Knob placement --- */
-let pct = 0;
-if (config.max !== config.min) {
-  pct = ((config.score - config.min) / (config.max - config.min)) * 100;
-}
-pct = Math.max(0, Math.min(100, pct));
-document.getElementById("knob").style.left = pct + "%";
-document.getElementById("knob").textContent = config.score;
-/* --- Min / Max labels --- */
-document.getElementById("combinedMin").textContent = Math.min(config.min, 0);
-document.getElementById("combinedMax").textContent = Math.max(config.max, 13);
+
+// Initialize the page when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializePage);
 </script>
 </body>
 </html>
