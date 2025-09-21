@@ -26,17 +26,18 @@
   .bar-labels { display: flex; justify-content: space-between; margin: 0 5px 2px 5px; font-size: 13px; }
   .bar-wrapper { margin: 20px 0; position: relative; }
   .bar-line { position: absolute; left: 0; right: 0; height: 1px; background: #000; opacity: 0.9; }
-  .bar-line.top { top: -6px; }
-  .bar-line.bottom { bottom: -6px; }
+  .bar-line.top { top: -3px; }
+  .bar-line.bottom { bottom: -3px; }
   .bar-track { position: relative; height: 26px; border-radius: 6px; overflow: hidden; }
   .knob { position: absolute; top: -10px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transform: translateX(-50%); display: flex; align-items: center; justify-content: center; font-weight: bold; }
   .combined-end-labels { display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; }
 
-  .sub-bar { margin-top: 18px; position: relative; }
-  .sub-track { display: flex; height: 26px; border-radius: 6px; overflow: hidden; position: relative; }
-  .sub-gray { background: #f5f5f5; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-  .sub-green { background: #d5f5d5; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .sub-bar { margin-top: -13px; position: relative; } /* closer to bottom line */
+  .sub-track { height: 26px; border-radius: 6px; overflow: hidden; position: relative; }
   .split-line { position: absolute; top: 0; bottom: 0; width: 2px; border-left: 2px dashed #333; }
+  .sub-label { position: absolute; top: 50%; transform: translateY(-50%); font-size: 13px; font-weight: bold; }
+  .sub-label.left { left: 8px; }
+  .sub-label.right { right: 8px; }
 
   /* Detailauswertung Grid */
   .detail { text-align: center; margin-top: 40px; }
@@ -71,7 +72,7 @@
       <h1>AUDITIVE MERKFÄHIGKEIT</h1>
       <div class="header-right">
         <div><span class="bold">Datum:</span> <span id="date"></span></div>
-        <div>Teacher: <span id="teacher"></span></div>
+        <div><span id="company"></span></div>
       </div>
     </header>
     <div class="status-section">
@@ -88,11 +89,12 @@
         <div class="bar-line bottom"></div>
         <div class="knob" id="knob"></div>
       </div>
+      <!-- SUB-BAR -->
       <div class="sub-bar">
-        <div class="sub-track">
-          <div class="sub-gray" id="subGray"></div>
-          <div class="sub-green" id="subGreen"></div>
+        <div class="sub-track" id="subTrack">
           <div class="split-line" id="splitLine"></div>
+          <div class="sub-label left">Weiterführende Fachdiagnostik empfohlen</div>
+          <div class="sub-label right">Normbereich</div>
         </div>
       </div>
       <div class="combined-end-labels">
@@ -208,7 +210,7 @@ async function initializePage() {
         age: apiData.age || '',
         since: apiData.since || '',
         date: apiData.date || new Date().toLocaleDateString('de-DE'),
-        teacher: apiData.teacher || '',
+        company: apiData.company || apiData.einrichtung || apiData.privatKunde || '',
         min: (apiData.min !== 'UNKNOWN' && apiData.min !== undefined) ? Number(apiData.min) : 0,
         max: (apiData.max !== 'UNKNOWN' && apiData.max !== undefined) ? Number(apiData.max) : 13,
         score: (apiData.score !== 'UNKNOWN' && apiData.score !== undefined) ? Number(apiData.score) : 0,
@@ -221,8 +223,6 @@ async function initializePage() {
         label2: (apiData.label2 !== 'UNKNOWN' && apiData.label2) || "",
         label3: (apiData.label3 !== 'UNKNOWN' && apiData.label3) || "",
         label4: (apiData.label4 !== 'UNKNOWN' && apiData.label4) || "",
-        subgray: (apiData.subgray !== 'UNKNOWN' && apiData.subgray) || "",
-        subgreen: (apiData.subgreen !== 'UNKNOWN' && apiData.subgreen) || "",
         subsplit: (apiData.subsplit !== 'UNKNOWN' && apiData.subsplit !== undefined) ? Number(apiData.subsplit) : 50,
         submin: (apiData.submin !== 'UNKNOWN' && apiData.submin !== undefined) ? Number(apiData.submin) : 0,
         submax: (apiData.submax !== 'UNKNOWN' && apiData.submax !== undefined) ? Number(apiData.submax) : 13,
@@ -240,7 +240,7 @@ async function initializePage() {
         age: params.get("age") || '',
         since: params.get("since") || '',
         date: params.get("date") || new Date().toLocaleDateString('de-DE'),
-        teacher: params.get("teacher") || '',
+        company: params.get("company") || params.get("einrichtung") || params.get("privatKunde") || '',
         min: params.get("min") ? Number(params.get("min")) : 0,
         max: params.get("max") ? Number(params.get("max")) : 13,
         score: params.get("score") ? Number(params.get("score")) : 0,
@@ -251,8 +251,6 @@ async function initializePage() {
         label2: params.get("label2") || "",
         label3: params.get("label3") || "",
         label4: params.get("label4") || "",
-        subgray: params.get("subgray") || "",
-        subgreen: params.get("subgreen") || "",
         subsplit: params.get("subsplit") ? Number(params.get("subsplit")) : 50,
         submin: params.get("submin") ? Number(params.get("submin")) : 0,
         submax: params.get("submax") ? Number(params.get("submax")) : 13,
@@ -289,20 +287,19 @@ function populatePage() {
   document.getElementById("age").textContent = config.age;
   document.getElementById("since").textContent = config.since;
   document.getElementById("date").textContent = config.date;
-  document.getElementById("teacher").textContent = config.teacher;
+  document.getElementById("company").textContent = config.company;
   document.getElementById("assessmentText").innerHTML = config.assessment;
   document.getElementById("label1").textContent = config.label1;
   document.getElementById("label2").textContent = config.label2;
   document.getElementById("label3").textContent = config.label3;
   document.getElementById("label4").textContent = config.label4;
-  document.getElementById("subGray").textContent = config.subgray;
-  document.getElementById("subGreen").textContent = config.subgreen;
+  // Sub-bar labels are now static in HTML
 
   /* --- Footer --- */
   document.getElementById("footerName").textContent = config.name;
   document.getElementById("footerGeb").textContent = "geb.: " + config.birthdate;
   document.getElementById("footerDate").textContent = config.date;
-  document.getElementById("footerTeacher").textContent = config.teacher;
+  document.getElementById("footerTeacher").textContent = config.company;
 
   /* --- Gradient Bar --- */
   document.getElementById("barTrack").style.background = buildGradient(config.colors, config.ranges, config.min, config.max);
@@ -312,9 +309,12 @@ function populatePage() {
   document.getElementById("knob").textContent = config.score;
   document.getElementById("combinedMin").textContent = Math.min(config.min, config.submin);
   document.getElementById("combinedMax").textContent = Math.max(config.max, config.submax);
-  document.getElementById("subGray").style.flex = `0 0 ${config.subsplit}%`;
-  document.getElementById("subGreen").style.flex = `0 0 ${100 - config.subsplit}%`;
-  document.getElementById("splitLine").style.left = config.subsplit + "%";
+
+  /* --- Sub-bar gradient --- */
+  const split = config.subsplit;
+  document.getElementById("subTrack").style.background =
+    `linear-gradient(to right, #f5f5f5 ${split-3}%, #70ff7c ${split+3}%)`;
+  document.getElementById("splitLine").style.left = split + "%";
 
   /* --- Apply cell colors --- */
   config.cellColors.forEach((color, idx) => {

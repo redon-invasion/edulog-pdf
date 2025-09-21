@@ -7,7 +7,7 @@ class EdulogApiService {
   constructor() {
     // Dynamically determine URLs based on current domain
     const currentHost = window.location.hostname;
-    const isDev = currentHost.includes('dev-');
+    const isDev = currentHost.includes('dev-') || currentHost.includes('.test');
     
     if (isDev) {
       this.authUrl = 'https://dev.bildung.software/api/v1/authenticate';
@@ -280,24 +280,54 @@ class EdulogApiService {
   }
 
   /**
-   * Calculate age from birthdate
+   * Calculate age from birthdate (DD/MM/YYYY format)
    */
   calculateAge(birthdate) {
     if (!birthdate) return null;
     try {
-      const birth = new Date(birthdate);
+      // Parse date in DD/MM/YYYY format
+      let birth;
+      if (birthdate.includes('/')) {
+        // Handle DD/MM/YYYY format
+        const parts = birthdate.split('/');
+        if (parts.length === 3) {
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in Date constructor
+          const year = parseInt(parts[2], 10);
+          birth = new Date(year, month, day);
+        } else {
+          birth = new Date(birthdate);
+        }
+      } else {
+        birth = new Date(birthdate);
+      }
+      
       const today = new Date();
+      
+      // Calculate full years
       let age = today.getFullYear() - birth.getFullYear();
       const monthDiff = today.getMonth() - birth.getMonth();
       
+      // Adjust if birthday hasn't occurred this year
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
       }
       
-      const months = today.getMonth() - birth.getMonth();
-      const totalMonths = age * 12 + months;
+      // Calculate months since last birthday
+      let monthsSinceBirthday = today.getMonth() - birth.getMonth();
+      if (monthsSinceBirthday < 0) {
+        monthsSinceBirthday += 12;
+      }
       
-      return `${age};${Math.floor(totalMonths % 12)}`;
+      // Adjust if the day hasn't occurred this month
+      if (today.getDate() < birth.getDate()) {
+        monthsSinceBirthday--;
+        if (monthsSinceBirthday < 0) {
+          monthsSinceBirthday = 11;
+        }
+      }
+      
+      return `${age};${monthsSinceBirthday}`;
     } catch (error) {
       return '6;0';
     }
