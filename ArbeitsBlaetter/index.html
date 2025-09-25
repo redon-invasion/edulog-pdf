@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Multi-Page View (with consent form)</title>
+  <title>Arbeits Blaetter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -626,15 +626,20 @@
           return;
         }
 
+        let or = 'landscape';
+
         const pdf = new jsPDF({
           unit: 'mm',
           format: 'a4',
-          orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
+          //orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
+          orientation: or
         });
 
         for (let i = 0; i < pages.length; i++) {
           const el = pages[i];
-          const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+          //const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+          const orientation = or;
+
 
           const canvas = await html2canvas(el, { scale: 2 });
           const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -663,9 +668,12 @@
           return;
         }
 
+        let or = 'landscape';
+
         for (let i = 0; i < pages.length; i++) {
           const el = pages[i];
-          const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+          //const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
+          const orientation = or;
 
           const canvas = await html2canvas(el, { scale: 2 });
           const imgData = canvas.toDataURL('image/jpeg', 0.95);
