@@ -42,6 +42,27 @@ class EdulogApiService {
   }
 
   /**
+   * Check if authentication is valid and should show content
+   */
+  async shouldShowContent() {
+    try {
+      const params = this.getUrlParams();
+      
+      // If no token or p_id, don't show content
+      if (!this.hasApiParams()) {
+        return false;
+      }
+
+      // Try to authenticate - if it fails, don't show content
+      await this.authenticate();
+      return true;
+    } catch (error) {
+      console.warn('Authentication failed, hiding content:', error.message);
+      return false;
+    }
+  }
+
+  /**
    * Authenticate and get basic data
    */
   async authenticate() {
@@ -485,6 +506,69 @@ class EdulogApiService {
       authUrl: this.authUrl,
       baseUrl: this.baseUrl
     };
+  }
+
+  /**
+   * Hide page content when authentication fails
+   */
+  hidePageContent() {
+    // Hide the main content
+    const body = document.body;
+    if (body) {
+      body.style.display = 'none';
+    }
+    
+    // Show a message instead
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'edulog-no-access';
+    messageDiv.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+      ">
+        <div style="
+          text-align: center;
+          padding: 40px;
+          background: white;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          max-width: 500px;
+          margin: 20px;
+        ">
+          <div style="
+            width: 80px;
+            height: 80px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+          ">⚠️</div>
+          <h2 style="color: #333; margin: 0 0 15px 0;">Zugriff verweigert</h2>
+          <p style="color: #666; margin: 0 0 20px 0; line-height: 1.5;">
+            Sie haben keine Berechtigung, diese Seite anzuzeigen.<br>
+            Bitte überprüfen Sie Ihre Zugangsdaten.
+          </p>
+          <p style="color: #999; font-size: 14px; margin: 0;">
+            Fehlende oder ungültige Authentifizierung
+          </p>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(messageDiv);
   }
 }
 

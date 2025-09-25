@@ -556,6 +556,14 @@
           // Show loading screen
           window.edulogApi.showLoadingScreen();
           
+          // Check if we should show content (authentication check)
+          const shouldShow = await window.edulogApi.shouldShowContent();
+          if (!shouldShow) {
+            window.edulogApi.hideLoadingScreen();
+            window.edulogApi.hidePageContent();
+            return;
+          }
+          
           // Fetch data from API specifically for ArbeitsBlaetter
           const data = await window.arbeitsBlaetterApi.fetchData();
 

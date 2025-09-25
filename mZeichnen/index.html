@@ -260,6 +260,16 @@ async function initializePage() {
       window.edulogApi.showLoadingScreen();
     }
     
+    // Check if we should show content (authentication check)
+    const shouldShow = await window.edulogApi.shouldShowContent();
+    if (!shouldShow) {
+      if (window.edulogApi) {
+        window.edulogApi.hideLoadingScreen();
+        window.edulogApi.hidePageContent();
+      }
+      return;
+    }
+    
     // Fetch data from API
     if (window.mZeichnenApi) {
       const apiData = await window.mZeichnenApi.fetchData();
