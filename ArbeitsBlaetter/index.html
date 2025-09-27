@@ -534,7 +534,6 @@
   <!-- Buttons -->
   <div class="download-buttons">
     <button id="download-merged">📄 Alle Seiten als EIN PDF</button>
-    <button id="download-separate">📂 Jede Seite einzeln</button>
   </div>
 
   <!-- Libraries -->
@@ -640,6 +639,30 @@
 
     const { jsPDF } = window.jspdf;
 
+    // Function to generate PDF filename in format: Name_Firstname_PID
+    function generatePdfFilename() {
+      const params = window.edulogApi.getUrlParams();
+      const p_id = params.p_id || 'unknown';
+      
+      // Get the name from the page data (already processed)
+      const nameElement = document.querySelector('.bold');
+      let name = '';
+      if (nameElement) {
+        name = nameElement.textContent.trim();
+      }
+      
+      // If no name found, try to get from API data
+      if (!name && window.arbeitsBlaetterApi) {
+        // This would need to be stored globally or passed to the function
+        name = 'Unknown';
+      }
+      
+      // Clean the name for filename (remove special characters, replace spaces with underscores)
+      const cleanName = name.replace(/[^a-zA-ZäöüÄÖÜß\s]/g, '').replace(/\s+/g, '_');
+      
+      return `${cleanName}_${p_id}`;
+    }
+
     async function exportMerged() {
       try {
         const pages = document.querySelectorAll('.page');
@@ -675,65 +698,22 @@
           pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
         }
 
-        pdf.save('all-pages.pdf');
+        const filename = generatePdfFilename();
+        pdf.save(`${filename}.pdf`);
       } catch (error) {
         console.error('Error exporting merged PDF:', error);
         alert('Error exporting PDF: ' + error.message);
       }
     }
 
-    async function exportSeparate() {
-      try {
-        const pages = document.querySelectorAll('.page');
-        
-        if (pages.length === 0) {
-          alert('No pages found to export');
-          return;
-        }
-
-        let or = 'landscape';
-
-        for (let i = 0; i < pages.length; i++) {
-          const el = pages[i];
-          //const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
-          const orientation = or;
-
-          const canvas = await html2canvas(el, { scale: 2 });
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-          const pdf = new jsPDF({
-            unit: 'mm',
-            format: 'a4',
-            orientation: orientation
-          });
-
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-
-          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-          pdf.save(`page-${i+1}.pdf`);
-        }
-        
-      } catch (error) {
-        console.error('Error exporting separate PDFs:', error);
-        alert('Error exporting PDFs: ' + error.message);
-      }
-    }
 
     function initializePdfButtons() {
       const downloadMergedBtn = document.getElementById('download-merged');
-      const downloadSeparateBtn = document.getElementById('download-separate');
       
       if (downloadMergedBtn) {
         downloadMergedBtn.addEventListener('click', exportMerged);
       } else {
         console.error('Download merged button not found');
-      }
-      
-      if (downloadSeparateBtn) {
-        downloadSeparateBtn.addEventListener('click', exportSeparate);
-      } else {
-        console.error('Download separate button not found');
       }
     }
   </script>
