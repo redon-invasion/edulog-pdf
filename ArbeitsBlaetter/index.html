@@ -672,37 +672,156 @@
           return;
         }
 
+        // Show loading indicator for high-quality PDF generation
+        const loadingIndicator = showPdfLoadingIndicator(pages.length);
+
         let or = 'landscape';
 
+        // Create PDF with high quality settings
         const pdf = new jsPDF({
           unit: 'mm',
           format: 'a4',
-          //orientation: pages[0].classList.contains('rotated') ? 'portrait' : 'landscape'
-          orientation: or
+          orientation: or,
+          compress: true, // Enable compression for smaller file size
+          precision: 2    // Higher precision for better quality
         });
 
         for (let i = 0; i < pages.length; i++) {
           const el = pages[i];
-          //const orientation = el.classList.contains('rotated') ? 'portrait' : 'landscape';
           const orientation = or;
 
+          // Update loading progress
+          updatePdfLoadingProgress(loadingIndicator, i + 1, pages.length);
 
-          const canvas = await html2canvas(el, { scale: 2 });
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          // High quality html2canvas settings
+          const canvas = await html2canvas(el, {
+            scale: 4,                    // Increased from 2 to 4 for higher resolution
+            useCORS: true,              // Enable CORS for better image handling
+            allowTaint: false,          // Prevent tainted canvas
+            backgroundColor: '#ffffff',  // Ensure white background
+            logging: false,             // Disable logging for cleaner output
+            width: el.offsetWidth,      // Explicit width
+            height: el.offsetHeight,    // Explicit height
+            scrollX: 0,                 // Prevent scroll offset
+            scrollY: 0,                 // Prevent scroll offset
+            windowWidth: el.offsetWidth,
+            windowHeight: el.offsetHeight,
+            // High DPI support
+            dpi: 300,                   // High DPI for crisp rendering
+            // Better text rendering
+            letterRendering: true,      // Better text rendering
+            // Image quality settings
+            imageTimeout: 15000,        // Longer timeout for images
+            removeContainer: true       // Clean up after rendering
+          });
+
+          // Use PNG format for lossless quality instead of JPEG
+          const imgData = canvas.toDataURL('image/png');
 
           if (i > 0) pdf.addPage('a4', orientation);
 
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
 
-          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+          // Add image with high quality settings
+          pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, '', 'FAST');
         }
+
+        // Hide loading indicator
+        hidePdfLoadingIndicator(loadingIndicator);
 
         const filename = generatePdfFilename();
         pdf.save(`${filename}.pdf`);
       } catch (error) {
         console.error('Error exporting merged PDF:', error);
         alert('Error exporting PDF: ' + error.message);
+      }
+    }
+
+    // Show loading indicator for PDF generation
+    function showPdfLoadingIndicator(totalPages) {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'pdf-loading-indicator';
+      loadingDiv.innerHTML = `
+        <div style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          font-family: Arial, sans-serif;
+        ">
+          <div style="
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin: 20px;
+          ">
+            <div style="
+              width: 60px;
+              height: 60px;
+              border: 4px solid #f3f3f3;
+              border-top: 4px solid #f08a00;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+              margin: 0 auto 20px;
+            "></div>
+            <h3 style="color: #f08a00; margin: 0 0 10px 0;">PDF wird generiert...</h3>
+            <p style="color: #666; margin: 0 0 15px 0;">Hochauflösende Qualität wird erstellt</p>
+            <div style="
+              width: 100%;
+              background: #f0f0f0;
+              border-radius: 5px;
+              overflow: hidden;
+              margin-bottom: 10px;
+            ">
+              <div id="pdf-progress-bar" style="
+                height: 20px;
+                background: linear-gradient(90deg, #f08a00, #ffa500);
+                width: 0%;
+                transition: width 0.3s ease;
+                border-radius: 5px;
+              "></div>
+            </div>
+            <p id="pdf-progress-text" style="color: #999; font-size: 14px; margin: 0;">Seite 0 von ${totalPages}</p>
+          </div>
+        </div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+      document.body.appendChild(loadingDiv);
+      return loadingDiv;
+    }
+
+    // Update loading progress
+    function updatePdfLoadingProgress(loadingIndicator, currentPage, totalPages) {
+      const progressBar = document.getElementById('pdf-progress-bar');
+      const progressText = document.getElementById('pdf-progress-text');
+      
+      if (progressBar && progressText) {
+        const percentage = (currentPage / totalPages) * 100;
+        progressBar.style.width = percentage + '%';
+        progressText.textContent = `Seite ${currentPage} von ${totalPages}`;
+      }
+    }
+
+    // Hide loading indicator
+    function hidePdfLoadingIndicator(loadingIndicator) {
+      if (loadingIndicator && loadingIndicator.parentNode) {
+        loadingIndicator.parentNode.removeChild(loadingIndicator);
       }
     }
 
