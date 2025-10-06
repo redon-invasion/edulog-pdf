@@ -68,13 +68,16 @@ class ArbeitsBlaetterApi {
    * Process API data for ArbeitsBlaetter specifically
    */
   processData(apiData, authData = null) {
-    // Determine company name based on auth data
+    // Determine company name and stadt based on auth data
     let companyName = '';
+    let stadt = '';
     if (authData) {
       if (authData.einrichtung && authData.einrichtung.name) {
         companyName = authData.einrichtung.name;
+        stadt = authData.einrichtung.stadt || '';
       } else if (authData.privat_kunde && authData.privat_kunde.name) {
         companyName = authData.privat_kunde.name;
+        stadt = authData.privat_kunde.stadt || '';
       }
     }
     
@@ -82,9 +85,11 @@ class ArbeitsBlaetterApi {
       // Only the data needed for ArbeitsBlaetter
       name: `${apiData.Vorname || ''} ${apiData.Nachname || ''}`.trim() || '',
       birthdate: apiData.GeburtsDatum || '',
+      age: this.apiService.calculateAge(apiData.GeburtsDatum) || '',
       since: apiData.InDEseit || '',
       date: new Date().toLocaleDateString('de-DE'),
-      company: companyName
+      company: companyName,
+      stadt: stadt
     };
   }
 
@@ -95,9 +100,11 @@ class ArbeitsBlaetterApi {
     return {
       name: '',
       birthdate: '',
+      age: '',
       since: '',
       date: new Date().toLocaleDateString('de-DE'),
-      company: ''
+      company: '',
+      stadt: ''
     };
   }
 }

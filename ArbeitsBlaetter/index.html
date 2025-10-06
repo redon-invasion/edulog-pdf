@@ -24,29 +24,33 @@
     }
 
     h1 {
-      font-size: 20px;
-      color: #f07c00;
-      margin: 10px 0 4px;
+      font-size: 28px;
+      color: #f1ab48;
+      margin: 20px 0 4px;
       font-weight: bold;
-      text-decoration: underline;
-      text-underline-offset: 4px;
     }
 
     .subtitle { font-size: 14px; margin-top: 4px; }
     .bold { font-weight: bold; }
-    .logo { max-height: 40px; display: block; margin: 0 auto 8px; }
+    .logo { max-height: 40px; display: block; margin: -20px auto 8px; }
 
     .header-landscape {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: 50px;
+      padding-top: 15px;
     }
     .header-landscape .left,
     .header-landscape .right {
       font-size: 14px;
       line-height: 1.4;
       width: 25%;
+    }
+    .header-landscape .left div:not(:first-child) {
+      margin-top: 8px;
+    }
+    .header-landscape .right div:not(:first-child) {
+      margin-top: 8px;
     }
     .header-landscape .right { text-align: right; }
     .header-landscape .center { text-align: center; flex: 1; }
@@ -83,7 +87,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: 10px;
+      padding-top: 5px;
       padding-bottom: 10px;
       width: 100%;
     }
@@ -196,17 +200,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>ELTERNFRAGEBOGEN</h1>
-        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img1.png" alt="Seite 1"></div>
@@ -217,17 +221,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# <span>&nbsp; &nbsp;</span> Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>ELTERNFRAGEBOGEN</h1>
-        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img2.png" alt="Seite 2"></div>
@@ -238,17 +242,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>ELTERNFRAGEBOGEN</h1>
-        <div class="subtitle">Bitte die zutreffenden Felder ankreuzen!</div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img3.png" alt="Seite 3"></div>
@@ -259,17 +263,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>VISUOMOTORIK</h1>
-        <div class="subtitle"></div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img4.png" alt="Seite 4"></div>
@@ -280,17 +284,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>VISUOMOTORIK</h1>
-        <div class="subtitle"></div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img5.png" alt="Seite 5"></div>
@@ -301,17 +305,17 @@
     <div class="header-landscape">
       <div class="left">
         <div class="bold">#NAME#</div>
-        <div>geb.: #BIRTHDATE#</div>
+        <div>geb.: #BIRTHDATE# Alter: #AGE#</div>
         <div>In D/A/CH seit: #DAACH#</div>
       </div>
       <div class="center">
         <img src="logo.png" alt="Logo" class="logo">
         <h1>BEOBACHTUNG</h1>
-        <div class="subtitle"></div>
       </div>
       <div class="right">
-        <div class="bold">Datum: #DATE#</div>
-        <div>#COMPANY#</div>
+        <div class="bold">#COMPANY#</div>
+        <div>Stadt #STADT#</div>
+        <div>Datum: #DATE#</div>
       </div>
     </div>
     <div class="content"><img src="img6.png" alt="Seite 6"></div>
@@ -322,8 +326,8 @@
     <div class="rotated-content">
       <div class="header-rotated">
         <div class="left">
-          <div class="bold">#NAME#</div>
-          <div>geb.: #BIRTHDATE#</div>
+          <div class="bold">Kind #NAME#</div>
+          <div>geb.: #BIRTHDATE# <span>&nbsp; &nbsp;</span> Alter: #AGE#</div>
           <div>In D/A/CH seit: #DAACH#</div>
         </div>
         <div class="center">
@@ -331,8 +335,9 @@
           <h1>NAMEN-SCHREIBEN / MENSCH-ZEICHNEN</h1>
         </div>
         <div class="right">
-          <div class="bold">Datum: #DATE#</div>
-          <div>#COMPANY#</div>
+          <div class="bold">#COMPANY#</div>
+          <div>Stadt #STADT#</div>
+          <div>Datum: #DATE#</div>
         </div>
       </div>
     </div>
@@ -570,21 +575,23 @@
         const replacements = {
           "#NAME#": data.name || '',
           "#BIRTHDATE#": data.birthdate || '',
+          "#AGE#": data.age || '',
           "#DAACH#": data.since || '',
           "#DATE#": data.date || '',
           "#COMPANY#": data.company || '',
+          "#STADT#": data.stadt || '',
           "#DACHSINCE#": data.since || ''
         };
 
         
         // Replace placeholders in the document
         document.body.innerHTML = document.body.innerHTML.replace(
-          /#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#|#DACHSINCE#/g,
+          /#NAME#|#BIRTHDATE#|#AGE#|#DAACH#|#DATE#|#COMPANY#|#STADT#|#DACHSINCE#/g,
           match => replacements[match]
         );
         
         // Debug: Log if any placeholders remain
-        const remainingPlaceholders = document.body.innerHTML.match(/#NAME#|#BIRTHDATE#|#DAACH#|#DATE#|#COMPANY#|#DACHSINCE#/g);
+        const remainingPlaceholders = document.body.innerHTML.match(/#NAME#|#BIRTHDATE#|#AGE#|#DAACH#|#DATE#|#COMPANY#|#STADT#|#DACHSINCE#/g);
         // if (remainingPlaceholders) {
         //   console.warn('Remaining placeholders:', remainingPlaceholders);
         // } else {

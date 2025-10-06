@@ -206,11 +206,14 @@ class EdulogApiService {
   processApiData(apiData, authData = null) {
     // Determine company name based on auth data
     let companyName = '';
+    let stadt = '';
     if (authData) {
       if (authData.einrichtung && authData.einrichtung.name) {
         companyName = authData.einrichtung.name;
+        stadt = authData.einrichtung.stadt || '';
       } else if (authData.privat_kunde && authData.privat_kunde.name) {
         companyName = authData.privat_kunde.name;
+        stadt = authData.privat_kunde.stadt || '';
       }
     }
     
@@ -224,6 +227,7 @@ class EdulogApiService {
       date: new Date().toLocaleDateString('de-DE'),
       teacher: apiData.authuser_name || '',
       company: companyName,
+      stadt: stadt,
       
       // Assessment data
       assessment: apiData.Beurteilung || '',
@@ -348,9 +352,9 @@ class EdulogApiService {
         }
       }
       
-      return `${age};${monthsSinceBirthday}`;
+      return `${age},${monthsSinceBirthday}`;
     } catch (error) {
-      return '6;0';
+      return '0,0';
     }
   }
 
